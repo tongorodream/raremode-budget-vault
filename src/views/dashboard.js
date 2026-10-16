@@ -44,8 +44,10 @@ const { incomeRemainingText } = require('./budgets');
    provides them), but the predicate itself is a pure module export. */
 const { keeps, dropsAnyOf, isRefund } = require('../ledger');
 const { poolAccounts } = require('../vocabulary');
+const { subcategorySpend } = require('../subcategories');
 
 module.exports = function registerDashboard(ctx) {
+  let expandedCategory = null;
   const { S, $, app, root, plugin, money, toast, fileAt, periodSummary, budgetTotals, budgetUsed, budgetVsActualRows, categorySpendRows, categoryGap, planFigures, bookFigures, periodTitle, periodMonthName, periodShortLabel, dayLabel, periodRange, shiftPeriod, currentPeriod, txInPeriod, catType, catAssumeSpent, movedToFunds, accountForLabel, periodsForMonths, trendPeriods, historySpan, elapsedDays, periodSpend, compareTotals, healthSnapshot, locale, ledger, LENSES, periodFigures } = ctx;
 
   /* ONE FACT PER LINE (Statement type, Oct 2026). The footnotes under a figure
@@ -2680,7 +2682,7 @@ module.exports = function registerDashboard(ctx) {
          be a tab stop no screen reader can announce. The legend below carries
          the same two actions as real buttons — that is the keyboard and AT
          path, and the wedge is the convenience one for a mouse or thumb. */
-      if (!x.other) seg.addEventListener('click', () => openCategory(x.cat));
+      if (!x.other) seg.addEventListener('click', () => selectCategory(x.cat));
       a += sweep;
     });
 
@@ -2747,13 +2749,15 @@ module.exports = function registerDashboard(ctx) {
       /* "Other" is a bucket of categories, so neither action has a single
          target to point at — it stays an inert row. */
       if (x.other) { legend.append(el('li', {}, face())); return; }
-      legend.append(el('li', {},
+      const hasChildren = categoryChildren(x.cat).some(child => child.subcategory);
+      const branch = el('li', hasChildren ? { class: 'bv-category-branch' } : {},
         /* aria-label rather than the row's own text: read as-is a screen
            reader gets "Groceries 4 200 32", three unlabelled fragments. */
         el('button', {
           type: 'button', class: 'dl-link',
           'aria-label': i18n.t('dash.split.sliceAria', { cat: x.cat, amount: money(x.amount), pct }),
-          onclick: () => openCategory(x.cat),
+          'aria-expanded': expandedCategory === x.cat ? 'true' : 'false',
+          onclick: () => selectCategory(x.cat),
         }, face()),
         el('button', {
           type: 'button', class: 'dl-note',
@@ -2764,7 +2768,21 @@ module.exports = function registerDashboard(ctx) {
              use — icoEl walks a list, and only controller.js splits on the
              pipe. Passed as a string the whole thing is treated as one icon
              name, setIcon silently draws nothing, and the button ships empty. */
-        }, icoEl(['file-text', 'file']))));
+        }, icoEl(['file-text', 'file'])));
+      if (expandedCategory === x.cat) {
+        const details = el('div', { class: 'bv-subcategory-breakdown' });
+        details.append(el('button', { type: 'button', class: 'btn-ghost bv-all-category',
+          onclick: () => openCategory(x.cat) }, `Все операции: ${x.cat}`));
+        for (const child of categoryChildren(x.cat)) {
+          details.append(el('button', { type: 'button', class: 'bv-subcategory-link',
+            onclick: () => openCategory(x.cat, child.subcategory),
+            'aria-label': `${x.cat} → ${child.subcategory || 'Без подкатегории'}: ${money(child.amount)}` },
+          el('span', {}, child.subcategory || 'Без подкатегории'),
+          el('span', { class: 'num' }, money(child.amount))));
+        }
+        branch.append(details);
+      }
+      legend.append(branch);
     });
     wrap.append(svg, legend);
 
@@ -2801,7 +2819,20 @@ module.exports = function registerDashboard(ctx) {
      them back. Excluded rows are NOT hidden: they are held out of the figure
      too, but "still listed everywhere transactions are shown" (CONTEXT.md), so
      the reader can see the ones they vetoed. */
-  function openCategory(cat) {
+  function categoryChildren(cat) {
+    if (typeof ledger !== 'function') return [];
+    const { start, end } = periodRange(S.period);
+    const through = periodSummary(S.period).asOf || end;
+    return subcategorySpend(ledger(start, through).filter(row => keeps(LENSES.BUDGET, row)).map(row => row.row), cat);
+  }
+
+  function selectCategory(cat) {
+    if (!categoryChildren(cat).some(x => x.subcategory)) return openCategory(cat);
+    expandedCategory = expandedCategory === cat ? null : cat;
+    guardedSplit();
+  }
+
+  function openCategory(cat, subcategory) {
     ctx.switchView('transactions');
     const sel = $('#txCategory');
     /* Always assigned. A name with no <option> used to leave the select at
@@ -2816,9 +2847,14 @@ module.exports = function registerDashboard(ctx) {
     sel.value = known ? cat : '';
     $('#txAccount').value = '';
     $('#txSearch').value = '';
+    if ($('#txSubcategory')) $('#txSubcategory').value = '';
     $('#txWholeHistory').checked = false;
     if (typeof ctx.setTxInBudgetOnly === 'function') ctx.setTxInBudgetOnly(known ? cat : null);
     ctx.renderTransactions();
+    if (subcategory !== undefined && $('#txSubcategory')) {
+      $('#txSubcategory').value = 'sub:' + subcategory;
+      ctx.renderTransactions();
+    }
   }
   /* The "Missing categories" tile: category names on rows that no category file
      answers to. Selects the Transactions page's own option for them - the same
@@ -2836,6 +2872,7 @@ module.exports = function registerDashboard(ctx) {
   function openUncategorised() {
     ctx.switchView('transactions');
     $('#txCategory').value = '__none__';
+    if ($('#txSubcategory')) $('#txSubcategory').value = '';
     $('#txAccount').value = '';
     $('#txSearch').value = '';
     $('#txWholeHistory').checked = false;

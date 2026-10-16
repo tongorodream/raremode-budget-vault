@@ -447,6 +447,7 @@ module.exports = function registerAccounts(ctx) {
     const sel = $('#txAccount');
     if ([...sel.options].some(o => o.value === label)) sel.value = label;
     $('#txCategory').value = '';
+    if ($('#txSubcategory')) $('#txSubcategory').value = '';
     $('#txSearch').value = '';
     ctx.renderTransactions();
   }

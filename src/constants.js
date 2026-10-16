@@ -1,7 +1,7 @@
 'use strict';
 /* Shared constants. */
 
-const VIEW_TYPE = 'budget-app-view';
+const VIEW_TYPE = 'raremode-finance-view';
 
 /* Colour palettes, id -> label for the settings dropdown.
 

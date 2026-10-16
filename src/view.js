@@ -11,7 +11,7 @@ class BudgetView extends ItemView {
     this.plugin = plugin;
   }
   getViewType() { return VIEW_TYPE; }
-  getDisplayText() { return 'Budget'; }
+  getDisplayText() { return 'RareMode Finance'; }
   getIcon() { return 'wallet'; }
   async onOpen() {
     this.appCtl = mountApp(this);

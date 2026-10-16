@@ -298,6 +298,7 @@ const SHELL_HTML = `
             <div class="row tx-filters">
               <select id="txAccount" class="form-select form-select-sm"><option value="" data-i18n="tx.allAccounts">All accounts</option></select>
               <select id="txCategory" class="form-select form-select-sm"><option value="" data-i18n="tx.allCategories">All categories</option><option value="__none__" data-i18n="tx.uncategorised">Uncategorised</option></select>
+              <select id="txSubcategory" class="form-select form-select-sm" aria-label="Подкатегория"><option value="">Все подкатегории</option></select>
               <input type="search" id="txSearch" class="form-control form-control-sm" placeholder="Search description…" data-i18n-placeholder="shell.tx.search">
               <label class="text-muted tx-whole"><input type="checkbox" id="txWholeHistory"> <span data-i18n="shell.tx.wholeHistory">whole history</span></label>
             </div>
@@ -308,6 +309,7 @@ const SHELL_HTML = `
               <button class="btn-ghost" id="txDeleteFiltered"><span class="ico" data-ico="trash-2|trash"></span> <span data-i18n="shell.tx.deleteFiltered">Delete these rows</span></button>
               <button class="btn-ghost" id="txNewAccount"><span class="ico" data-ico="plus"></span> <span data-i18n="acct.new.title">New account</span></button>
               <button class="btn-ghost" id="txAdd"><span class="ico" data-ico="plus"></span> <span data-i18n="shell.tx.add">Add transaction</span></button>
+              <button class="btn-ghost" id="txManageSubcategories">Подкатегории</button>
               <button class="btn-gradient" id="txSave" disabled data-i18n="shell.saveChanges">Save changes</button>
             </div>
           </div>

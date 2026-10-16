@@ -20,6 +20,7 @@ const { isRealIsoDate } = require('./dates');
 const { parseOwners } = require('./owners');
 const { parseGroups, parseNonEssential, typeOrder, typeRank } = require('./groups');
 const { NOTES_DIR, parseNote, sortNotes } = require('./note-file');
+const { subcategoryOf, subcategoryList } = require('./subcategories');
 
 /* ADR-0007 · fmNum: absent or unreadable is null, never 0. NOT parseNum — its fallback
    of 0 is a figure the file never claimed. */
@@ -257,6 +258,7 @@ module.exports = function registerLoad(ctx) {
       // chars, so the frontmatter `name` is the source of truth.
       S.categories.push({
         name: fm.name || file.basename, type: fm.type || 'expense', color: fm.color || '#888',
+        subcategories: subcategoryList(fm.subcategories),
         /* ADR-0007 · type_stated: an absent type is not an answer. `type` defaults to expense;
            ISSUE 32's pairing rule must not read the default as a statement. */
         type_stated: String(fm.type ?? '').trim() !== '',
@@ -499,6 +501,7 @@ module.exports = function registerLoad(ctx) {
       const splitCol = SCHEMAS.transactions.columns[6];
       const hasSplitHeader = !!(header && header[6] && header[6].trim().toLowerCase() === splitCol.header.toLowerCase());
       const known = hasSplitHeader ? 7 : 6;
+      const txExtraCols = extraColsOf(known, header, sep, dataRows);
       S.txFiles[`${acct.name}/${month}`] = {
         label: acct.name, month, dirty: false, fmRaw: raw,
         rel: f.path.slice(basePath().length + 1),   // ISSUE 97 — the path it was READ from
@@ -507,7 +510,7 @@ module.exports = function registerLoad(ctx) {
            rewrote (L3-02, L3-22). Exactly what each holds: verbatimAroundTable;
            tests/tx-file-lead-trail-sep.test.cjs pins them and the round trip. */
         lead: tx.lead, trail: tx.trail, sep: tx.sep,
-        extraCols: extraColsOf(known, header, sep, dataRows),
+        extraCols: txExtraCols,
         /* ISSUE 69 — serializeTxFile decides per save whether a row still
            needs Split at all; when this file ALSO carries an extra column
            that decision must not move it, since the extra sits at position
@@ -524,7 +527,11 @@ module.exports = function registerLoad(ctx) {
            index past `known` as undefined, the same shape a short row has
            always read as, so a six-column file's own extra cell can never be
            misread as Split — attachExtraCells below still gets the REAL `c`. */
-        rows: dataRows.map(c => attachExtraCells(rowToObject(SCHEMAS.transactions, c.slice(0, known)), known, c)),
+        rows: dataRows.map(c => {
+          const row = attachExtraCells(rowToObject(SCHEMAS.transactions, c.slice(0, known)), known, c);
+          const subcategory = subcategoryOf(row, { extraCols: txExtraCols });
+          return subcategory ? { ...row, subcategory } : row;
+        }),
       };
     });
 

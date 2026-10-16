@@ -14,6 +14,7 @@ class FieldModal extends Modal {
     this.resolve = resolve;
     this.submitted = false;
     this.values = {};
+    this.dependentSelects = [];
   }
   onOpen() {
     this.titleEl.setText(this.modalTitle);
@@ -63,11 +64,26 @@ class FieldModal extends Modal {
           t.onChange(v => { this.values[f.key] = v; });
         });
       } else if (f.type === 'select') {
-        this.values[f.key] = f.value ?? f.options[0];
+        const options = f.getOptions ? f.getOptions(this.values) : f.options;
+        this.values[f.key] = f.value ?? options[0]?.value ?? options[0] ?? '';
+        if (f.getOptions && !options.some(o => (o.value ?? o) === this.values[f.key])) this.values[f.key] = '';
         s.addDropdown(d => {
-          for (const o of f.options) d.addOption(o.value ?? o, o.label ?? o);
+          for (const o of options) d.addOption(o.value ?? o, o.label ?? o);
           d.setValue(this.values[f.key]);
-          d.onChange(v => { this.values[f.key] = v; });
+          if (f.dependsOn) d.selectEl.disabled = !this.values[f.dependsOn];
+          if (f.getOptions) this.dependentSelects.push({ field: f, dropdown: d });
+          d.onChange(v => {
+            this.values[f.key] = v;
+            for (const { field, dropdown } of this.dependentSelects) {
+              if (field.dependsOn !== f.key) continue;
+              const next = field.getOptions(this.values);
+              dropdown.selectEl.empty();
+              for (const o of next) dropdown.addOption(o.value ?? o, o.label ?? o);
+              this.values[field.key] = '';
+              dropdown.setValue('');
+              dropdown.selectEl.disabled = !this.values[field.dependsOn];
+            }
+          });
         });
       } else {
         this.values[f.key] = String(f.value ?? '');

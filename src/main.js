@@ -37,7 +37,7 @@ class BudgetPlugin extends Plugin {
        trend-math + figures — no view, no DOM) on first real use. */
     this.api = buildApi(this);
     this.registerView(VIEW_TYPE, leaf => new BudgetView(leaf, this));
-    this.addRibbonIcon('wallet', 'Open budget', () => this.activateView());
+    this.addRibbonIcon('wallet', 'RareMode Finance', () => this.activateView());
     this.addCommand({ id: 'open-budget', name: 'Open budget', callback: () => this.activateView() });
     this.addCommand({ id: 'setup-wizard', name: 'Set up budget (onboarding wizard)', callback: () => new OnboardingWizard(this.app, this).open() });
     this.addCommand({
@@ -115,6 +115,11 @@ class BudgetPlugin extends Plugin {
   }
 
   async activateView() {
+    const original = this.app.plugins?.plugins?.['budget-app'];
+    if (original && original.settings?.budgetFolder === this.settings.budgetFolder) {
+      new Notice('Отключите оригинальный Budget Vault перед открытием RareMode Finance для той же папки бюджета.', 9000);
+      return;
+    }
     const ws = this.app.workspace;
     const existing = ws.getLeavesOfType(VIEW_TYPE)[0];
     if (existing) { ws.revealLeaf(existing); return; }
@@ -200,7 +205,11 @@ class BudgetPlugin extends Plugin {
   }
 
   async loadSettings() {
-    this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+    const saved = await this.loadData();
+    this.settings = Object.assign({}, DEFAULT_SETTINGS, saved);
+    if (!saved?.budgetFolder && this.app.vault?.getFileByPath?.('Финансы/Бюджет/Settings.md')) {
+      this.settings.budgetFolder = 'Финансы/Бюджет';
+    }
   }
   async saveSettings() {
     await this.saveData(this.settings);

@@ -15,6 +15,7 @@ const { applySplit, splitRole, splitShortfall, SPLIT_PARENT, isSplitPart } = req
 const { prepareRules, matchRule } = require('../rules');
 /* Namespace import: this file binds `t` as a local (`const t = $('#txTable')`). */
 const i18n = require('../i18n');
+const { subcategoryOf, subcategoryOptions, subcategoryList, withSubcategoryColumn } = require('../subcategories');
 
 /* A category colour that may be written into a style attribute (see catDots). */
 const DOT_HEX = /^#[0-9a-fA-F]{3,8}$/;
@@ -219,6 +220,7 @@ module.exports = function registerTransactions(ctx) {
   const MISSING = '__missing__';
   const PAGE = 100;
   let shown = PAGE, shownFor = null;
+  let subcategoryFilterCategory = null;
 
   /* IN-BUDGET ROWS ONLY - set by a Dashboard drill-through, never by hand
      (2026-09-29 audit, Ruan's decision). The Dashboard's category figures are
@@ -281,6 +283,7 @@ module.exports = function registerTransactions(ctx) {
        branch already agreed on. */
     list.sort((a, b) => b.date.localeCompare(a.date));
     const acc = $('#txAccount').value, cat = $('#txCategory').value, q = $('#txSearch').value.trim().toLowerCase();
+    const sub = $('#txSubcategory')?.value || '';
     /* Self-healing, see inBudgetFor above. */
     if (inBudgetFor !== null && cat !== inBudgetFor) inBudgetFor = null;
     /* Everything the BUDGET lens holds out of the wedge, one reason each
@@ -306,7 +309,8 @@ module.exports = function registerTransactions(ctx) {
         else if (cat === MISSING) { if (!t.cat || known.has(t.cat)) return false; }
         else if (t.cat !== cat) return false;
       }
-      if (q && !t.desc.toLowerCase().includes(q)) return false;
+      if (sub && subcategoryOf(t, t._file) !== sub.slice(4)) return false;
+      if (q && ![t.desc, t.note, subcategoryOf(t, t._file)].join(' ').toLowerCase().includes(q)) return false;
       /* Counted only among the rows every OTHER filter kept, so the note says
          how many rows this one alone took away. */
       if (outside && outside.has(t.label)) { hiddenOutside++; return false; }
@@ -340,6 +344,10 @@ module.exports = function registerTransactions(ctx) {
     const catLabel = cat === '__none__' ? i18n.t('tx.uncategorised') : cat === MISSING ? i18n.t('dash.stat.missing') : cat;
     if (acc) { filters.push(`account: ${acc}`); names.push(`account ${acc}`); labels.push(i18n.t('tx.filter.account', { name: acc })); }
     if (cat) { filters.push(`category: ${catName}`); names.push(`category ${catName}`); labels.push(i18n.t('tx.filter.category', { name: catLabel })); }
+    if (sub) {
+      const name = sub.slice(4) || 'Без подкатегории';
+      filters.push(`subcategory: ${name}`); names.push(`subcategory ${name}`); labels.push(`Подкатегория: ${name}`);
+    }
     if (q) {
       const typed = $('#txSearch').value.trim();
       filters.push(`search: "${typed}"`); names.push(`search ${q}`); labels.push(i18n.t('tx.filter.search', { text: typed }));
@@ -482,6 +490,15 @@ module.exports = function registerTransactions(ctx) {
     syncOptions($('#txCategory'), [...S.categories.map(c => c.name), ...[...orphaned].sort((a, b) => a.localeCompare(b))],
       [['', i18n.t('tx.allCategories')], ['__none__', i18n.t('tx.uncategorised')],
         ...(orphaned.size ? [[MISSING, i18n.t('dash.stat.missing')]] : [])]);
+    const subFilter = $('#txSubcategory');
+    if (subFilter) {
+      const category = $('#txCategory').value;
+      if (subcategoryFilterCategory !== category) subFilter.value = '';
+      subcategoryFilterCategory = category;
+      const values = subcategoryOptions(S, category);
+      syncOptions(subFilter, [], [['', 'Все подкатегории'], ['sub:', 'Без подкатегории'],
+        ...values.map(v => ['sub:' + v, v])]);
+    }
     const { rows: filtered, token: renderToken, hiddenOutside, hiddenFuture, hiddenForeign, hiddenFund } = filteredRows();
     renderScopeNote({ outside: hiddenOutside, foreign: hiddenForeign, fund: hiddenFund, future: hiddenFuture });
     let list = filtered;
@@ -542,6 +559,18 @@ module.exports = function registerTransactions(ctx) {
       // "already categorised" and wrongly exempt it from the empty-only rule
       // just below.
       const origCat = r.cat;
+      const subSelect = el('select', { class: 'form-select form-select-sm bv-subcategory-select',
+        'aria-label': `Подкатегория: ${r.desc}` });
+      const fillSubSelect = () => {
+        subSelect.empty();
+        subSelect.append(el('option', { value: '' }, 'Без подкатегории'));
+        const values = subcategoryList([...subcategoryOptions(S, r.cat), subcategoryOf(r, item._file)]);
+        for (const value of values) subSelect.append(el('option', { value }, value));
+        subSelect.value = subcategoryOf(r, item._file);
+        subSelect.disabled = !r.cat;
+      };
+      fillSubSelect();
+      subSelect.addEventListener('change', () => { r.subcategory = subSelect.value; mark(); });
       body.append(el('tr', {},
         el('td', { class: 'text-muted' }, r.date),
         el('td', {}, r.desc),
@@ -549,8 +578,10 @@ module.exports = function registerTransactions(ctx) {
         // deferredCatSelect: a button until first use. See categories.js — at a
         // full page of rows this is the difference between 0 and 100 native
         // selects, and a select is the priciest control in a mobile WebView.
-        el('td', catDots.has(r.cat) ? { 'data-dot': '', style: `--cat-dot:${catDots.get(r.cat)}` } : {}, deferredCatSelect(r.cat, v => {
+        el('td', catDots.has(r.cat) ? { 'data-dot': '', style: `--cat-dot:${catDots.get(r.cat)}` } : {}, el('div', { class: 'bv-category-fields' }, deferredCatSelect(r.cat, v => {
+          if (r.cat !== v) r.subcategory = '';
           r.cat = v;
+          fillSubSelect();
           /* Learning is scoped to rows that arrived UNCATEGORISED, not every
              edit. This page is where a reader CORRECTS a category — often a
              rule's own mistake — and until now every correction here silently
@@ -587,7 +618,7 @@ module.exports = function registerTransactions(ctx) {
             if (v && origCat && v !== origCat) offerRuleCorrection(r.desc, v);
           }
           mark();
-        }, i18n.t('tx.aria.category', { date: r.date, desc: r.desc }))),
+        }, i18n.t('tx.aria.category', { date: r.date, desc: r.desc })), subSelect)),
         /* Weight, colour and the sign of an income row are the statement
            stylesheet's (src/statement/transactions.css): spending sits at 500
            in the text colour, income is green. No inline weight here, because
@@ -1000,6 +1031,7 @@ module.exports = function registerTransactions(ctx) {
     if (!go) return;
 
     for (const item of rows) {
+      if (item._row.cat !== cat && subcategoryOf(item._row, item._file)) item._row.subcategory = '';
       item._row.cat = cat;
       item._file.dirty = true;
     }
@@ -1258,7 +1290,9 @@ module.exports = function registerTransactions(ctx) {
        would shift the reader's own column into Split's old slot instead of
        merely losing an empty one. splitHeaderPresent now keeps the column for
        that reason and for L3-10's, with or without an extra column. */
-    const extraCols = f.extraCols;
+    const prepared = withSubcategoryColumn(f);
+    const extraCols = prepared.extraCols;
+    const writtenRows = new Map(f.rows.map((row, i) => [row, prepared.rows[i]]));
     const keepSplit = hasSplit || !!f.splitHeaderPresent
       || f.rows.some(r => r.splitRaw != null && String(r.splitRaw).trim() !== '');
     const schema = keepSplit ? SCHEMAS.transactions
@@ -1276,7 +1310,7 @@ module.exports = function registerTransactions(ctx) {
     const ordered = placeRows(f.rows, isNew);
     for (const r of ordered) { if (isLive) unplaced.delete(r); else if (isNew(r)) unplaced.add(r); }
     for (let i = 0; i < ordered.length; i++) f.rows[i] = ordered[i];
-    for (const r of f.rows) lines.push(extraCols ? rowLineWithExtras(schema, r, extraCols) : rowLine(schema, r));
+    for (const r of f.rows) lines.push(extraCols ? rowLineWithExtras(schema, writtenRows.get(r), extraCols) : rowLine(schema, r));
     const hadTable = typeof f.sep === 'string' && f.sep.trim() !== '';
     return `---\n${fm}\n---\n${leadBlock(f.lead, hadTable)}${lines.join('\n')}\n${typeof f.trail === 'string' ? f.trail : ''}`;
   }
@@ -1314,7 +1348,9 @@ module.exports = function registerTransactions(ctx) {
         { value: 'out', label: i18n.t('tx.dir.out') }, { value: 'in', label: i18n.t('tx.dir.in') }] },
       { key: 'amount', label: i18n.t('tx.field.amount'), type: 'number', placeholder: '0.00', desc: i18n.t('tx.field.amountDesc'), value: kept('amount', undefined) },
       { key: 'cat', label: i18n.t('tx.field.category'), type: 'select', options: [
-        { value: '', label: i18n.t('tx.field.none') }, ...S.categories.map(c => ({ value: c.name, label: c.name }))], value: kept('cat', '') },
+         { value: '', label: i18n.t('tx.field.none') }, ...S.categories.map(c => ({ value: c.name, label: c.name }))], value: kept('cat', '') },
+      { key: 'subcategory', label: 'Подкатегория', type: 'select', dependsOn: 'cat', value: kept('subcategory', ''),
+        getOptions: values => [{ value: '', label: 'Без подкатегории' }, ...(values.cat ? subcategoryOptions(S, values.cat) : []).map(value => ({ value, label: value }))] },
       { key: 'note', label: i18n.t('tx.field.note'), type: 'text', placeholder: i18n.t('tx.field.notePlaceholder'), value: kept('note', undefined) },
     ]);
     if (!r) return;
@@ -1332,7 +1368,7 @@ module.exports = function registerTransactions(ctx) {
 
     const month = date.slice(0, 7);
     const key = `${label}/${month}`;
-    const row = { date, desc, cat: r.cat, amount, excluded: false, note: (r.note || '').trim() };
+    const row = { date, desc, cat: r.cat, amount, excluded: false, note: (r.note || '').trim(), subcategory: (r.subcategory || '').trim() };
     const TX_FM = 'tags: [finance, finance/budget, finance/budget/transactions]';
     // Write first, then mirror into S.txFiles — memory never models a row the
     // disk doesn't have. serializeTxFile gets a cloned rows array (concat), so
@@ -1567,7 +1603,34 @@ module.exports = function registerTransactions(ctx) {
      ever exercised it through ctx, so it never earned a place here. Checked
      against the flat namespace before publishing — ctx.provide throws at mount
      on a collision, so a name only fails on the device. */
-  ctx.provide({ renderTransactions, serializeTxFile, saveTransactions, addTransaction, splitTransaction,
+  async function manageSubcategories() {
+    if (!S.categories.length) return toast('Сначала создайте категорию.', true);
+    const choice = await askFields(app, 'Подкатегории — выберите категорию', [
+      { key: 'category', label: 'Категория', type: 'select', options: S.categories.map(c => c.name),
+        value: $('#txCategory').value || S.categories[0].name },
+    ]);
+    if (!choice) return;
+    const category = S.categories.find(c => c.name === choice.category);
+    if (!category?.rel) return;
+    const answer = await askFields(app, `Подкатегории — ${category.name}`, [
+      { key: 'names', label: 'По одной подкатегории в строке', type: 'textarea',
+        desc: 'Существующие операции сохраняют свои названия. Новые названия появятся в формах и фильтрах.',
+        value: subcategoryOptions(S, category.name).join('\n') },
+    ]);
+    if (!answer) return;
+    const names = subcategoryList(answer.names.split(/\r?\n/));
+    try {
+      const text = await readFile(category.rel);
+      if (text == null) return toast('Файл категории больше не существует.', true);
+      const { raw, body } = require('../markdown').parseFrontmatter(text);
+      await ctx.patchFile(category.rel, raw, body, { subcategories: yamlStr(names.join(', ')) });
+      category.subcategories = names;
+      renderTransactions();
+      toast('Подкатегории сохранены.');
+    } catch (error) { toast(String(error.message || error), true); }
+  }
+
+  ctx.provide({ renderTransactions, serializeTxFile, saveTransactions, addTransaction, manageSubcategories, splitTransaction,
     deleteTransaction, deleteFilteredTransactions, categoriseFilteredTransactions,
     exportTransactions, syncOptions, filteredRows, setTxInBudgetOnly, ruleReach });
 };

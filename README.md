@@ -1,4 +1,59 @@
-# Budget Vault
+# RareMode Finance
+
+Fork of [Budget Vault](https://github.com/ruanpienaarcode/budget-vault), based on upstream 1.53.0.
+Plugin ID: **`raremode-finance`**. Current fork release: **0.1.0**.
+
+## Install on desktop, iPhone and Android with BRAT
+
+1. Let your vault synchronization finish. The financial data must already be on the device.
+2. Disable the original **Budget Vault** plugin (keep your budget files).
+3. Install and enable **BRAT** from Community plugins.
+4. Run **BRAT: Plugins: Add a beta plugin for testing (with or without version)**.
+5. Enter **`tongorodream/raremode-budget-vault`** and install the latest release.
+6. Enable **RareMode Finance**. Click the wallet icon or run **RareMode Finance: Open budget**.
+7. Set the budget folder to your existing folder. `Финансы/Бюджет` is detected automatically when it contains `Settings.md`; otherwise choose the path in plugin settings.
+
+BRAT updates the plugin; LiveSync (or your chosen vault sync) synchronizes the Markdown data. Plugin installation and financial synchronization are separate. Add the BRAT repository once on **each** device. Updating the original Community plugin does not update this fork.
+
+To update: **BRAT: Plugins: Check for updates to all beta plugins and UPDATE**.
+
+Manual installation: download `main.js`, `manifest.json`, `styles.css` from [Releases](https://github.com/tongorodream/raremode-budget-vault/releases/latest) into `.obsidian/plugins/raremode-finance/`.
+
+## Category → subcategory
+
+- Add transactions with dependent category and subcategory dropdowns.
+- Edit a transaction's subcategory directly below its category in the transactions table, then Save changes.
+- Use the separate **Подкатегория** filter; search also includes notes and subcategory names.
+- Click a dashboard category or its donut wedge to expand its children. Click a child to see the matching operations. **Все операции** opens the complete parent category.
+- Use **Подкатегории** on the Transactions screen to manage the available names per category.
+- Transactions without a subcategory remain in their parent and appear under **Без подкатегории**.
+- Refunds stay signed; subcategory totals reconcile with the parent using the same budget, currency and exclusion rules.
+
+### Data compatibility
+
+This fork reads the existing **`Subcategory`** extra column without re-importing or duplicating transactions. No data migration or bank balance invention is needed. Saving an old six-column file with no subcategories keeps its old shape. The optional upstream `Split` column and unknown extra columns are preserved.
+
+Optional category frontmatter:
+
+```yaml
+subcategories: "Home, Office"
+```
+
+Names already used in transactions remain selectable even when absent from that list. All financial data stays in the selected budget folder. The fork does not publish it or upload it to GitHub.
+
+## Build and verification
+
+```sh
+npm ci
+npm run build
+npm test
+```
+
+Retains Budget Vault's AGPL-3.0 license, attribution and upstream functionality. Source for this fork is in this repository; upstream documentation follows.
+
+---
+
+# Budget Vault — upstream documentation
 
 ![License: AGPL-3.0](https://img.shields.io/badge/license-AGPL--3.0-green)
 ![Obsidian](https://img.shields.io/badge/Obsidian-%E2%89%A51.8.0-7c3aed)

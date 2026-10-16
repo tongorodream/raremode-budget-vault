@@ -1145,6 +1145,8 @@ function mountApp(view) {
   $('#txReport').addEventListener('click', () => ctx.switchView('report'));
   $('#txDeleteFiltered').addEventListener('click', ctx.deleteFilteredTransactions);
   for (const id of ['txAccount', 'txCategory', 'txWholeHistory']) $('#' + id).addEventListener('change', ctx.renderTransactions);
+  $('#txSubcategory')?.addEventListener('change', ctx.renderTransactions);
+  $('#txManageSubcategories')?.addEventListener('click', ctx.manageSubcategories);
   $('#txSearch').addEventListener('input', () => { clearTimeout(S._q); S._q = setTimeout(ctx.renderTransactions, 200); });
   $('#budSave').addEventListener('click', ctx.saveBudget);
   $('#budCopyPrev').addEventListener('click', ctx.copyPreviousBudget);

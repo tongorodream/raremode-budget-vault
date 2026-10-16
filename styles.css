@@ -5540,6 +5540,20 @@ body.is-tablet .budget-app-root button:where(.sav-worth-btn) { padding: 8px 2px;
   .budget-app-root #acctFilters,
   .budget-app-root .acct-toolbar { margin-left: 16px; margin-right: 16px; max-width: calc(100% - 32px); }
 }
+.budget-app-root .bv-category-fields { display: grid; gap: 6px; min-width: 160px; }
+.budget-app-root .bv-subcategory-select { font-size: 12px; min-height: 34px; width: 100%; }
+.budget-app-root .bv-subcategory-breakdown { grid-column: 1 / -1; padding: 8px 10px 12px 20px; border-left: 2px solid var(--line, #718096); margin: 0 8px 10px 6px; }
+.budget-app-root .bv-subcategory-link { display: flex; justify-content: space-between; gap: 16px; width: 100%; padding: 10px 8px; border: 0; border-radius: 8px; background: transparent; color: inherit; text-align: left; cursor: pointer; }
+body.is-tablet .budget-app-root button:where(.bv-subcategory-link) { padding: 10px 8px; }
+.budget-app-root .bv-subcategory-link:hover { background: var(--line-soft); }
+.budget-app-root .bv-subcategory-link .num { white-space: nowrap; }
+.budget-app-root .bv-all-category { margin-bottom: 6px; }
+.budget-app-root .bv-category-branch { align-items: start; }
+.budget-app-root .bv-category-branch .dl-link[aria-expanded="true"] .dl-name::after { content: " ▾"; opacity: .6; }
+@media (max-width: 700px) {
+  .budget-app-root .bv-subcategory-select, .budget-app-root #txSubcategory { min-height: 44px; font-size: 16px; }
+  .budget-app-root .bv-subcategory-link { min-height: 44px; }
+}
 /* ============================================================
    STATEMENT TYPE — the foundation (October 2026, "Option 3").
 
