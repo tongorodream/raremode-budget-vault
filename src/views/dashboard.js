@@ -2827,6 +2827,7 @@ module.exports = function registerDashboard(ctx) {
   }
 
   function selectCategory(cat) {
+    if (cat === 'Продукты' && typeof ctx.renderGroceries === 'function') return ctx.switchView('groceries');
     if (!categoryChildren(cat).some(x => x.subcategory)) return openCategory(cat);
     expandedCategory = expandedCategory === cat ? null : cat;
     guardedSplit();

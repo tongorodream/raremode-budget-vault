@@ -1,5 +1,14 @@
 # Changelog
 
+## Kelly Finance 0.3.0 — 2026-11-14
+
+- Clicking «Продукты» in the Dashboard opens receipt-backed grocery analytics; the same page is available in the drawer.
+- Food-group icons and spending charts, purchased calories/macronutrients with explicit coverage, a qualitative moderation grouping, and store/branch breakdowns.
+- Twelve-month quantity-weighted unit prices for an exact product, with separate gram, millilitre and piece units and gaps for missing months.
+- Expandable receipts show quantities, unit prices, paid line totals and source receipts. One purchase remains one ledger transaction.
+- Read-only companion JSON is validated and matched by receipt ID, date and paid amount to eligible ledger transactions. Unmatched spending remains visible; excluded or non-budget transactions do not return through receipt data.
+- This local grocery extension has a Russian-language interface. See `docs/grocery-analytics.md` for the data contract and interpretation.
+
 All notable changes to Budget Vault. Versions match the plugin version in
 `manifest.json` and the release tag exactly (no `v` prefix).
 

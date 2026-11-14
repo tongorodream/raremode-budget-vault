@@ -39,6 +39,7 @@ const registerTax = require('./views/tax');
 const registerLoans = require('./views/loans');
 const registerImport = require('./views/import');
 const registerNotes = require('./views/notes');
+const registerGroceries = require('./views/groceries');
 const registerReport = require('./views/report');
 
 /* The pure core of money formatting, pulled out of moneyIn() so it is
@@ -479,6 +480,7 @@ function mountApp(view) {
     budgets: {},               // 'YYYY-MM' -> [{category, type, amount, notes}]
     budgetMeta: {},
     txFiles: {},               // 'label/YYYY-MM' -> {label, month, rows, dirty}
+    groceryData: { receipts: [], errors: [] }, // validated, read-only receipt companions
     accountsIgnored: [],       // ISSUE 60 — account .md paths below Accounts/ that mdFilesIn does not read
     accountsDuplicated: [],    // ISSUE 72 — {label, first, second}: two accounts claiming one transaction folder
     txFolders: [],             // account names whose Transactions/ folder exists on disk
@@ -672,6 +674,7 @@ function mountApp(view) {
      order is belt-and-braces rather than load-bearing. loadVault calls
      ctx.loadNotes(), which is late-bound for the same reason. */
   registerNotes(ctx);
+  registerGroceries(ctx);
   registerDashboard(ctx);
   // After dashboard, whose budgetVsActualRows/categorySpendRows it reads —
   // the report page's whole reason for existing is never re-deriving those.
@@ -766,7 +769,7 @@ function mountApp(view) {
     $('#periodLabel').textContent = ctx.periodTitle(S.period);
     ({ dashboard: ctx.renderDashboard, score: ctx.renderScore,
        transactions: ctx.renderTransactions, budgets: ctx.renderBudgets,
-       plan: ctx.renderPlan, notes: ctx.renderNotes, report: ctx.renderReport,
+       plan: ctx.renderPlan, notes: ctx.renderNotes, groceries: ctx.renderGroceries, report: ctx.renderReport,
        savings: ctx.renderSavings, accounts: ctx.renderAccounts, assets: ctx.renderAssets,
        debts: ctx.renderDebts, owed: ctx.renderOwed,
        services: ctx.renderServices,

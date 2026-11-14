@@ -810,6 +810,7 @@ module.exports = function registerLoad(ctx) {
     if (!S.period || !periodKeyValid(S.period)) S.period = currentPeriod();
 
     await loadNotes();
+    if (typeof ctx.loadGroceryData === 'function') await ctx.loadGroceryData();
   }
 
   /* ADR-0007 · A note that cannot be read is skipped. Per-file catch, so one bad note cannot

@@ -166,6 +166,9 @@ const TRANSLATED_VIEWS = new Set(['dashboard', 'score', 'transactions', 'budgets
    finding, not silently folded in without comment — see the dispatch
    summary. */
 const EXPECTED_ENGLISH_ONLY = ['notes', 'savings', 'debts', 'owed', 'services', 'tax', 'loans', 'import'];
+// Kelly's receipt-backed food page is a Russian-language local extension.
+// Keep it explicit; the English-only backlog and its shrink-only gate stay intact.
+const EXPECTED_RUSSIAN_ONLY = ['groceries'];
 eq(EXPECTED_ENGLISH_ONLY.length, 8, 'the declared English-only backlog is exactly 8 views (plan and assets were translated in the 3 Sep 2026 mobile redesign) — translating one shrinks this list');
 for (const v of EXPECTED_ENGLISH_ONLY) {
   ok(!TRANSLATED_VIEWS.has(v), `'${v}' cannot be in both TRANSLATED_VIEWS and EXPECTED_ENGLISH_ONLY`);
@@ -344,7 +347,7 @@ async function mountView() {
   // 'report' right after 'dashboard' — see views-render.test.cjs's mountAll
   // for why the order is load-bearing.
   for (const f of ['dashboard', 'report', 'score', 'transactions', 'budgets', 'plan', 'accounts', 'savings',
-    'assets', 'debts', 'owed', 'services', 'tax', 'loans', 'import']) {
+    'assets', 'debts', 'owed', 'services', 'tax', 'loans', 'import', 'groceries']) {
     require(`../src/views/${f}`)(ctx);
   }
   return { ctx, nodes };
@@ -412,7 +415,7 @@ async function mountView() {
     i18n.setLanguage('en');
 
     const switches = deText !== enTextByView[view];
-    if (EXPECTED_ENGLISH_ONLY.includes(view)) {
+    if (EXPECTED_ENGLISH_ONLY.includes(view) || EXPECTED_RUSSIAN_ONLY.includes(view)) {
       ok(!switches,
         `'${view}' is declared in EXPECTED_ENGLISH_ONLY but its German render now differs from English — ` +
         `it has been translated. Remove it from the list (shrink EXPECTED_ENGLISH_ONLY and its asserted count).`);

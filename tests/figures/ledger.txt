@@ -354,6 +354,25 @@ number	2025	-	noteAbout/option[21]
 number	2025	-	noteAbout/option[22]
 number	2025	-	noteAbout/option[23]
 
+## groceries
+number	1	-	groceryContent/header.gr-header/div/p.gr-note
+number	30, 2026	-	groceryContent/header.gr-header/div/p.gr-note
+number	0	-	groceryContent/header.gr-header/div/p.gr-note
+number	0	-	groceryContent/header.gr-header/div/p.gr-note
+money	R 0,00	0	groceryContent/div.gr-kpis[0]/div.gr-kpi[0]/strong.num
+money	R 0,00	0	groceryContent/div.gr-kpis[0]/div.gr-kpi[1]/strong.num
+percent	0%	-	groceryContent/div.gr-kpis[0]/div.gr-kpi[1]/small
+number	0	-	groceryContent/div.gr-kpis[0]/div.gr-kpi[2]/strong.num
+number	0	-	groceryContent/div.gr-kpis[0]/div.gr-kpi[2]/small
+number	0	-	groceryContent/div.gr-kpis[0]/div.gr-kpi[2]/small
+number	0	-	groceryContent/div.gr-grid[1]/section.gr-card[1]/p.gr-note[2]
+number	0	-	groceryContent/div.gr-grid[1]/section.gr-card[1]/p.gr-note[2]
+money	R 0,00	0	groceryContent/div.gr-grid[1]/section.gr-card[1]/p.gr-note[2]
+number	4	-	groceryContent/div.gr-grid[1]/section.gr-card[1]/p.gr-note[2]
+number	9	-	groceryContent/div.gr-grid[1]/section.gr-card[1]/p.gr-note[2]
+number	4	-	groceryContent/div.gr-grid[1]/section.gr-card[1]/p.gr-note[2]
+number	12	-	groceryContent/section.gr-card[0]/p.gr-note[0]
+
 ## report
 number	3	-	reportPeriodPills/div.chart-range/button.chart-range-btn[1]
 number	12	-	reportPeriodPills/div.chart-range/button.chart-range-btn[2]

@@ -48,6 +48,9 @@ const SHELL_HTML = `
     <button class="drawer-link" data-view="transactions">
       <span class="di"><span class="ico" data-ico="arrow-left-right"></span></span><span data-i18n="nav.transactions">Transactions</span>
     </button>
+    <button class="drawer-link" data-view="groceries">
+      <span class="di"><span class="ico" data-ico="shopping-basket|apple"></span></span><span>Продукты</span>
+    </button>
     <button class="drawer-link" data-view="budgets">
       <span class="di"><span class="ico" data-ico="bookmark"></span></span><span data-i18n="nav.budgets">Budget</span>
     </button>
@@ -424,6 +427,10 @@ const SHELL_HTML = `
                saying "R 0.00 left" — the same rule the Accounts deck follows. -->
           <div class="plan-free hidden" id="planFree"></div>
         </div>
+      </section>
+
+      <section id="view-groceries" class="hidden">
+        <div id="groceryContent"></div>
       </section>
 
       <section id="view-notes" class="hidden">

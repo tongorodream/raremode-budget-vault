@@ -7103,6 +7103,95 @@ body.is-tablet .budget-app-root button:where(.bv-subcategory-link) { padding: 10
     color: var(--text-light);
   }
 }
+/* Statement lane: receipt-backed product analytics. */
+.budget-app-root #groceryContent { display: grid; gap: 24px; padding-bottom: 24px; }
+.budget-app-root .gr-header { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+.budget-app-root .gr-header h1 { margin: 4px 0 8px; }
+.budget-app-root .gr-back { border: 0; box-shadow: none; padding: 0; background: none; color: var(--text-muted); margin-bottom: 22px; }
+.budget-app-root .gr-eyebrow { color: var(--color-accent); font-size: 13px; }
+.budget-app-root .gr-note { color: var(--text-muted); font-size: 13px; line-height: 1.65; margin: 8px 0 16px; }
+.budget-app-root .gr-kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.budget-app-root .gr-kpi { min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+.budget-app-root .gr-kpis > .gr-kpi { background: var(--surface); border: 1px solid var(--border-color); border-radius: 20px; padding: 22px; }
+.budget-app-root .gr-kpi > span { font-size: 13px; color: var(--text-muted); }
+.budget-app-root .gr-kpi > strong { color: var(--text-primary); font-size: clamp(22px, 2.8vw, 34px); font-weight: 600; letter-spacing: -.035em; line-height: 1.2; overflow-wrap: break-word; }
+.budget-app-root .gr-kpi > small { font-size: 12px; line-height: 1.55; color: var(--text-muted); }
+.budget-app-root .gr-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; align-items: start; }
+.budget-app-root .gr-card { min-width: 0; background: var(--surface); border: 1px solid var(--border-color); border-radius: 24px; padding: 26px; }
+.budget-app-root .gr-card-head { display: flex; align-items: center; gap: 10px; }
+.budget-app-root .gr-card-head > .ico { color: var(--color-accent); }
+.budget-app-root .gr-card-head h2 { font-size: 21px; margin: 0; letter-spacing: -.025em; }
+.budget-app-root .gr-donut-wrap { display: flex; flex-direction: column; align-items: center; gap: 16px; margin-top: 18px; }
+.budget-app-root .gr-donut { display: block; width: 220px; max-width: 100%; height: auto; flex-shrink: 0; }
+.budget-app-root .gr-legend { list-style: none; padding: 0; margin: 0; width: 100%; }
+.budget-app-root .gr-legend li { list-style: none; margin: 0; padding: 0; border-bottom: 1px solid var(--border-color); }
+.budget-app-root .gr-legend li:last-child { border-bottom: 0; }
+.budget-app-root .gr-legend-row,
+.budget-app-root .gr-legend-button { display: flex; align-items: center; gap: 9px; width: 100%; padding: 11px 0; font-size: 13px; color: var(--text-primary); text-align: left; }
+.budget-app-root .gr-legend-button { height: auto; border: 0; border-radius: 8px; background: transparent; box-shadow: none; white-space: normal; }
+body.is-tablet .budget-app-root button:where(.gr-legend-button) { padding: 11px 0; }
+.budget-app-root .gr-legend-button:hover,
+.budget-app-root .gr-legend-button[aria-pressed="true"] { background: var(--body-bg); }
+.budget-app-root .gr-legend-button:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 3px; }
+@supports not selector(:focus-visible) {
+  .budget-app-root .gr-legend-button:focus { outline: 2px solid var(--color-accent); outline-offset: 3px; }
+}
+.budget-app-root .gr-legend i { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.budget-app-root .gr-food-icon { font-size: 20px; width: 27px; flex-shrink: 0; text-align: center; }
+.budget-app-root .gr-legend-name { flex: 1; min-width: 0; overflow-wrap: break-word; }
+.budget-app-root .gr-legend strong { font-size: 13px; font-weight: 600; white-space: nowrap; }
+.budget-app-root .gr-percent { min-width: 32px; color: var(--text-muted); text-align: right; font-size: 12px; }
+.budget-app-root .gr-nutrition-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; padding: 18px 0; }
+.budget-app-root .gr-nutrition-stats .gr-kpi > strong { font-size: 27px; }
+.budget-app-root .gr-price-controls { display: flex; gap: 12px; align-items: center; }
+.budget-app-root .gr-price-controls select:first-child { flex: 1; min-width: 0; }
+.budget-app-root .gr-price-controls select:last-child { width: auto; max-width: 190px; }
+.budget-app-root .gr-price-chart { width: 100%; height: auto; display: block; margin: 14px 0; }
+.budget-app-root .gr-price-current { display: flex; flex-direction: column; gap: 8px; padding: 12px 0; }
+.budget-app-root .gr-price-current > span { font-size: 13px; color: var(--text-muted); }
+.budget-app-root .gr-price-current > strong { font-size: 26px; line-height: 1.3; font-weight: 600; color: var(--text-primary); }
+.budget-app-root .gr-prices,
+.budget-app-root .gr-purchases { scroll-margin-top: 24px; }
+.budget-app-root .gr-source-link { color: var(--color-accent); text-decoration: underline; }
+.budget-app-root .gr-table-wrap { overflow-x: auto; max-width: 100%; }
+.budget-app-root .gr-table { border-collapse: collapse; width: 100%; font-size: 13px; }
+.budget-app-root .gr-table th { text-align: left; font-size: 12px; font-weight: 500; color: var(--text-muted); white-space: nowrap; }
+.budget-app-root .gr-table th,
+.budget-app-root .gr-table td { padding: 14px 12px; border-bottom: 1px solid var(--border-color); }
+.budget-app-root .gr-table td:not(:first-child) { white-space: nowrap; font-variant-numeric: tabular-nums; }
+.budget-app-root .gr-table small { display: block; color: var(--text-muted); font-size: 12px; margin-top: 6px; }
+.budget-app-root .gr-receipt { padding: 0; border-bottom: 1px solid var(--border-color); }
+.budget-app-root .gr-receipt > summary { cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 20px 0; list-style: none; }
+.budget-app-root .gr-receipt > summary::before { content: '›'; color: var(--color-accent); font-size: 22px; }
+.budget-app-root .gr-receipt[open] > summary::before { content: '⌄'; }
+.budget-app-root .gr-receipt > summary > span { flex: 1; min-width: 0; }
+.budget-app-root .gr-receipt > summary strong { font-size: 14px; font-weight: 600; }
+.budget-app-root .gr-receipt > summary small { display: block; margin-top: 6px; line-height: 1.55; color: var(--text-muted); font-size: 12px; }
+.budget-app-root .gr-receipt > a { display: inline-block; font-size: 13px; margin: 14px 0; }
+.budget-app-root .gr-active-filter { display: flex; align-items: center; justify-content: space-between; gap: 10px; color: var(--color-accent); font-size: 14px; }
+.budget-app-root .gr-data-issues { padding: 16px; border: 1px solid var(--color-warning); border-radius: 16px; font-size: 13px; color: var(--text-primary); }
+@media (max-width: 900px) {
+  .budget-app-root .gr-grid { grid-template-columns: minmax(0, 1fr); }
+  .budget-app-root .gr-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .budget-app-root .gr-donut-wrap { flex-direction: row; align-items: center; }
+  .budget-app-root .gr-donut { width: 190px; }
+}
+@media (max-width: 600px) {
+  .budget-app-root #groceryContent { gap: 16px; }
+  .budget-app-root .gr-header { align-items: flex-start; flex-direction: column; gap: 4px; }
+  .budget-app-root .gr-card { padding: 18px; border-radius: 20px; }
+  .budget-app-root .gr-kpis > .gr-kpi { padding: 16px; }
+  .budget-app-root .gr-kpi > strong { font-size: 24px; }
+  .budget-app-root .gr-donut-wrap { flex-direction: column; }
+  .budget-app-root .gr-donut { width: 220px; }
+  .budget-app-root .gr-legend-button { min-height: 44px; }
+  .budget-app-root .gr-price-controls { flex-direction: column; align-items: stretch; }
+  .budget-app-root .gr-price-controls select:last-child { width: 100%; max-width: none; }
+  .budget-app-root .gr-price-chart { min-width: 0; }
+  .budget-app-root .gr-price-chart text { font-size: 32px; }
+  .budget-app-root .gr-table { min-width: 540px; }
+  .budget-app-root .gr-receipt > summary { gap: 10px; }
+}
 /* Statement lane: phone (max-width 600px and .is-phone) — type floors, gutters, tap targets, Transactions header. */
 /* THE PHONE LAYER (Oct 2026 phone audit, a 375x667 iPhone 6s/7/8/SE).
 

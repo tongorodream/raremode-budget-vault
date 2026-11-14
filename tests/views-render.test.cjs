@@ -89,7 +89,7 @@ async function mountAll(files = FILES, period = '2026-07') {
   // budgetVsActualRows/categorySpendRows off ctx at register time, and both
   // are published by dashboard.js's own ctx.provide().
   for (const f of ['dashboard', 'report', 'score', 'transactions', 'budgets', 'plan', 'accounts', 'savings',
-    'assets', 'debts', 'owed', 'services', 'tax', 'loans', 'import']) {
+    'assets', 'debts', 'owed', 'services', 'tax', 'loans', 'import', 'groceries']) {
     require(`../src/views/${f}`)(ctx);
   }
   return { ctx, S, nodes };
