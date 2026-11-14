@@ -37,7 +37,7 @@ class BudgetPlugin extends Plugin {
        trend-math + figures — no view, no DOM) on first real use. */
     this.api = buildApi(this);
     this.registerView(VIEW_TYPE, leaf => new BudgetView(leaf, this));
-    this.addRibbonIcon('wallet', 'RareMode Finance', () => this.activateView());
+    this.addRibbonIcon('wallet', 'Kelly Finance', () => this.activateView());
     this.addCommand({ id: 'open-budget', name: 'Open budget', callback: () => this.activateView() });
     this.addCommand({ id: 'setup-wizard', name: 'Set up budget (onboarding wizard)', callback: () => new OnboardingWizard(this.app, this).open() });
     this.addCommand({
@@ -117,7 +117,7 @@ class BudgetPlugin extends Plugin {
   async activateView() {
     const original = this.app.plugins?.plugins?.['budget-app'];
     if (original && original.settings?.budgetFolder === this.settings.budgetFolder) {
-      new Notice('Отключите оригинальный Budget Vault перед открытием RareMode Finance для той же папки бюджета.', 9000);
+      new Notice('Отключите оригинальный Budget Vault перед открытием Kelly Finance для той же папки бюджета.', 9000);
       return;
     }
     const ws = this.app.workspace;

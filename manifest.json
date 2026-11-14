@@ -1,7 +1,7 @@
 {
   "id": "raremode-finance",
-  "name": "RareMode Finance",
-  "version": "0.1.0",
+  "name": "Kelly Finance",
+  "version": "0.2.0",
   "minAppVersion": "1.8.0",
   "description": "Budget Vault fork with category/subcategory editing, filters and dashboard drill-down. Markdown data, desktop and mobile.",
   "author": "tongorodream; based on Budget Vault by Ruan Pienaar",

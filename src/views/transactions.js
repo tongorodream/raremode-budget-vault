@@ -629,7 +629,12 @@ module.exports = function registerTransactions(ctx) {
         el('td', {}, el('input', { type: 'text', class: 'form-control form-control-sm', value: r.note, style: 'width:130px',
           'aria-label': i18n.t('tx.aria.note', { date: r.date, desc: r.desc }),
           onchange: e => { r.note = e.target.value; mark(); } })),
-        el('td', {}, splitButton(item), deleteButton(item))));
+        el('td', {}, el('button', { class: 'btn-ghost', onclick: () => {
+          addDraft = { date: r.date, desc: r.desc, label: item.label, cat: r.cat,
+            amount: Math.abs(r.amount), dir: r.amount < 0 ? 'out' : 'in',
+            note: r.note, subcategory: subcategoryOf(r, item._file) };
+          addTransaction();
+        } }, 'Копировать'), splitButton(item), deleteButton(item))));
     }
     if (!list.length) body.append(el('tr', {}, el('td', { colspan: '8', class: 'text-muted' }, i18n.t('tx.none'))));
     if (total > list.length) {
@@ -1319,23 +1324,16 @@ module.exports = function registerTransactions(ctx) {
      never reaches a bank CSV. Written to disk immediately (same lockstep
      pattern as the CSV import commit), so there's nothing extra to save.
 
-     Except into a month with UNSAVED edits, which it refuses. The write is the
-     whole month file from its live model, so an unsaved recategorise or
-     Excluded tick in that month went to disk with the new row — Save never
-     pressed, "Reload from disk" no longer a way back from it (2026-10-07
-     audit, L3-26). The delete, the split and the un-split on this page stay in
-     memory for exactly that reason. Writing the new row onto the file's
-     on-disk content instead would need the month as it was last read, which
-     only the loader knows how to read; refusing is the choice that cannot lose
-     either change. The reader's entry is kept (addDraft) and fills the dialog
-     the next time it opens, so a refusal costs a Save and a tap, not retyping.
-     An edit in another month never blocks — only the month written matters. */
+      Into a month with unsaved edits, append in memory and retain the dirty
+      flag. Save changes then commits both the edited rows and the new entry.
+      This avoids both silently flushing edits and refusing an otherwise valid
+      entry. Failed writes and invalid amounts retain the form draft. */
   let addDraft = null;
   async function addTransaction() {
     const labels = [...new Set([
       ...S.accounts.map(a => a.tx_label || a.name),
       ...Object.values(S.txFiles).map(f => f.label)])].sort();
-    if (!labels.length) return toast(i18n.t('tx.add.noAccount'), true);
+    if (!labels.length) labels.push('Счёт не уточнён');
     const draft = addDraft;
     addDraft = null;
     const kept = (key, fallback) => (draft && draft[key] != null ? draft[key] : fallback);
@@ -1343,40 +1341,58 @@ module.exports = function registerTransactions(ctx) {
       { key: 'date', label: i18n.t('tx.field.date'), type: 'date', value: kept('date', todayIso()) },
       { key: 'desc', label: i18n.t('tx.field.desc'), type: 'text', placeholder: i18n.t('tx.field.descPlaceholder'), value: kept('desc', undefined) },
       { key: 'label', label: i18n.t('tx.field.account'), type: 'select', options: labels,
+        onCreate: async () => { const a = await ctx.addAccount(); return a && (a.tx_label || a.name); },
         value: draft && labels.includes(draft.label) ? draft.label : ($('#txAccount').value || labels[0]) },
       { key: 'dir', label: i18n.t('tx.field.direction'), type: 'select', value: kept('dir', 'out'), options: [
         { value: 'out', label: i18n.t('tx.dir.out') }, { value: 'in', label: i18n.t('tx.dir.in') }] },
       { key: 'amount', label: i18n.t('tx.field.amount'), type: 'number', placeholder: '0.00', desc: i18n.t('tx.field.amountDesc'), value: kept('amount', undefined) },
       { key: 'cat', label: i18n.t('tx.field.category'), type: 'select', options: [
-         { value: '', label: i18n.t('tx.field.none') }, ...S.categories.map(c => ({ value: c.name, label: c.name }))], value: kept('cat', '') },
+         { value: '', label: i18n.t('tx.field.none') }, ...S.categories.map(c => ({ value: c.name, label: c.name }))], value: kept('cat', ''),
+         onCreate: async () => { const c = await ctx.promptCreateCategory(); return c && c.name; } },
       { key: 'subcategory', label: 'Подкатегория', type: 'select', dependsOn: 'cat', value: kept('subcategory', ''),
+        onCreate: async values => {
+          const category = S.categories.find(c => c.name === values.cat);
+          if (!category) { toast('Сначала выберите категорию', true); return null; }
+          const answer = await askFields(app, 'Новая подкатегория', [{ key: 'name', label: 'Название', type: 'text' }]);
+          const name = answer && answer.name.trim();
+          if (!name) return null;
+          const names = subcategoryList([...subcategoryOptions(S, category.name), name]);
+          const text = await readFile(category.rel);
+          const { raw, body } = require('../markdown').parseFrontmatter(text);
+          await ctx.patchFile(category.rel, raw, body, { subcategories: yamlStr(names.join(', ')) });
+          category.subcategories = names;
+          return name;
+        },
         getOptions: values => [{ value: '', label: 'Без подкатегории' }, ...(values.cat ? subcategoryOptions(S, values.cat) : []).map(value => ({ value, label: value }))] },
       { key: 'note', label: i18n.t('tx.field.note'), type: 'text', placeholder: i18n.t('tx.field.notePlaceholder'), value: kept('note', undefined) },
     ]);
     if (!r) return;
-    const date = r.date.trim();
+    const date = (r.date || '').trim() || todayIso();
     if (!ISO_DATE.test(date)) return toast(i18n.t('tx.err.date'), true);
-    const desc = r.desc.trim();
-    if (!desc) return toast(i18n.t('tx.err.desc'), true);
+    const desc = (r.desc || '').trim();
     // txSegment, not safeSeg: the key below and the path further down must be
     // the same string, and an existing folder keeps its on-disk name.
-    const label = txSegment(r.label);
+    const label = txSegment(r.label || 'Счёт не уточнён');
     if (!label) return toast(i18n.t('tx.err.account'), true);
     let amount = normalizeAmount(r.amount);
-    if (amount == null || amount === 0) return toast(i18n.t('tx.err.amount'), true);
+    if (amount == null || amount === 0) { addDraft = r; return toast(i18n.t('tx.err.amount'), true); }
     amount = parseFloat((r.dir === 'in' ? Math.abs(amount) : -Math.abs(amount)).toFixed(2));
 
     const month = date.slice(0, 7);
     const key = `${label}/${month}`;
-    const row = { date, desc, cat: r.cat, amount, excluded: false, note: (r.note || '').trim(), subcategory: (r.subcategory || '').trim() };
+    const row = { date, desc, cat: r.cat || '', amount, excluded: false, note: (r.note || '').trim(), subcategory: (r.subcategory || '').trim() };
     const TX_FM = 'tags: [finance, finance/budget, finance/budget/transactions]';
     // Write first, then mirror into S.txFiles — memory never models a row the
     // disk doesn't have. serializeTxFile gets a cloned rows array (concat), so
     // a failed write leaves the live model untouched.
     const existing = S.txFiles[key];
     if (existing && existing.dirty) {
-      addDraft = r;
-      return toast(i18n.t('tx.add.dirty', { file: txFileRel(label, month) }), true);
+      existing.rows.push(row);
+      existing.dirty = true;
+      renderTransactions();
+      $('#txSave').disabled = false;
+      toast('Транзакция добавлена к правкам. Нажмите Save changes, чтобы сохранить всё вместе.');
+      return;
     }
     const fileModel = existing
       ? { ...existing, rows: existing.rows.concat([row]) }
@@ -1384,6 +1400,7 @@ module.exports = function registerTransactions(ctx) {
     try {
       await writeFile(txFileRel(label, month), serializeTxFile(fileModel));
     } catch (err) {
+      addDraft = r;
       return toast(i18n.t('tx.err.save', { error: err.message || err }), true);
     }
     if (!S.txFiles[key]) S.txFiles[key] = { label, month, rows: [], dirty: false, fmRaw: TX_FM };

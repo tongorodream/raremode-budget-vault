@@ -93,6 +93,15 @@ const item = (date, desc, amount) => ({ date, desc, cat: 'Food', amount, exclude
 (async () => {
   const unpin = pinClock('2026-10-07');
   try {
+    {
+      const { ctx, S } = await mount();
+      answers.push({ date: '', desc: '', label: 'Cheque', amount: '15', dir: 'out', cat: '', note: '' });
+      await ctx.addTransaction();
+      const row = S.txFiles['Cheque/2026-10'].rows[0];
+      eq([row.date, row.desc, row.cat, row.amount], ['2026-10-07', '', '', -15], 'optional fields stay blank and date defaults to today');
+      const fields = asked[asked.length - 1].fields;
+      for (const key of ['label', 'cat', 'subcategory']) ok(typeof fields.find(f => f.key === key).onCreate === 'function', key + ' offers inline creation');
+    }
     /* ---- 1. Add transaction into a month with unsaved edits ---------------- */
     {
       const { ctx, S } = await mount();
@@ -100,21 +109,17 @@ const item = (date, desc, amount) => ({ date, desc, cat: 'Food', amount, exclude
       answers.push({ ...BAKERY });
       await ctx.addTransaction();
       eq(ctx.vault._store.get(SEPT), FILES[SEPT], 'nothing reaches disk — the unsaved recategorise is not written behind the reader\'s back (L3-26)');
-      eq(f.rows.map(r => [r.desc, r.cat]), [['Coffee', 'Salary']], 'the edit is still in memory, and the new row was not added there either');
+      eq(f.rows.map(r => [r.desc, r.cat]), [['Coffee', 'Salary'], ['Bakery', BAKERY.cat]], 'both the edit and new row stay in memory');
       ok(f.dirty, 'and the month is still marked unsaved, so Save still offers it');
       const t = lastToast(ctx);
-      ok(t.bad, 'the refusal is said, as an error');
-      eq(t.msg, i18n.t('tx.add.dirty', { file: 'Transactions/Cheque/2026-09.md' }), 'naming the file that has the unsaved changes');
-      ok(t.msg.includes('Transactions/Cheque/2026-09.md'), 'with the path filled in (the key exists in lang/en.js)');
+      ok(!t.bad, 'adding alongside edits is no longer an error');
 
       /* The entry is kept: the next Add transaction opens with it. */
       answers.push(null);
       await ctx.addTransaction();
       const fields = asked[asked.length - 1].fields;
       const val = k => (fields.find(x => x.key === k) || {}).value;
-      eq([val('date'), val('desc'), val('label'), val('dir'), val('amount'), val('cat'), val('note')],
-        [BAKERY.date, BAKERY.desc, BAKERY.label, BAKERY.dir, BAKERY.amount, BAKERY.cat, BAKERY.note],
-        'the dialog reopens with what was typed, so refusing cost the reader nothing');
+      eq(val('desc'), undefined, 'accepted entry is not offered again as a draft');
       answers.push(null);
       await ctx.addTransaction();
       eq((asked[asked.length - 1].fields.find(x => x.key === 'desc') || {}).value, undefined,
@@ -122,10 +127,9 @@ const item = (date, desc, amount) => ({ date, desc, cat: 'Food', amount, exclude
 
       /* After Save, the same add goes through — and writes both, deliberately. */
       await ctx.saveTransactions();
-      answers.push({ ...BAKERY });
-      await ctx.addTransaction();
       const disk = ctx.vault._store.get(SEPT);
       ok(disk.includes('| Coffee | Salary |') && disk.includes('| Bakery |'), 'with the edits saved, Add transaction writes the new row as before');
+      eq(f.rows.filter(r => r.desc === 'Bakery').length, 1, 'saving does not duplicate the new transaction');
     }
 
     /* ---- 2. an import into a month with unsaved edits ---------------------- */

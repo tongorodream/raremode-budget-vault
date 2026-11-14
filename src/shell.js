@@ -27,7 +27,7 @@ const SHELL_HTML = `
   <div class="splash-gate hidden" id="splashGate" role="group" aria-labelledby="gateTitle">
     <div class="splash-inner">
       <div class="splash-logo" aria-hidden="true"><span class="ico" data-ico="wallet|banknote|coins"></span></div>
-      <h1 class="splash-title" id="gateTitle">Budget Vault</h1>
+      <h1 class="splash-title" id="gateTitle">Kelly Finance</h1>
       <p class="splash-sub" data-i18n="splash.sub">Your private budget, kept safely inside your vault.</p>
       <button type="button" class="btn-gradient splash-btn" id="gateEnter" data-i18n="splash.enter">Enter budget</button>
     </div>
@@ -117,7 +117,7 @@ const SHELL_HTML = `
     <button type="button" class="brand" id="brandHome" aria-label="Go to Dashboard" data-i18n-aria="topbar.home">
       <span class="brand-logo" aria-hidden="true"><span class="ico" data-ico="wallet|banknote|coins"></span></span>
       <span class="brand-text">
-        <b>Budget Vault</b>
+        <b>Kelly Finance</b>
         <span class="brand-sub" id="brandSub" data-i18n="topbar.brandSub">Obsidian vault budget</span>
       </span>
     </button>

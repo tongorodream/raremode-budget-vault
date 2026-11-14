@@ -2,7 +2,7 @@
 /* Input modal — replaces window.prompt(), which Electron (and therefore
    Obsidian) does not support. One modal can collect several fields at once. */
 
-const { Modal, Setting } = require('obsidian');
+const { Modal, Setting, Notice } = require('obsidian');
 const { el } = require('./dom');
 const { normalizeAmount } = require('./amount');
 
@@ -15,6 +15,7 @@ class FieldModal extends Modal {
     this.submitted = false;
     this.values = {};
     this.dependentSelects = [];
+    this.pendingCreates = 0;
   }
   onOpen() {
     this.titleEl.setText(this.modalTitle);
@@ -84,6 +85,19 @@ class FieldModal extends Modal {
               dropdown.selectEl.disabled = !this.values[field.dependsOn];
             }
           });
+          if (f.onCreate) s.addButton(b => b.setButtonText('+ Создать').onClick(async () => {
+            b.setDisabled(true);
+            this.pendingCreates++;
+            try {
+              const value = await f.onCreate(this.values);
+              if (!value) return;
+              d.addOption(value, value);
+              d.setValue(value);
+              d.selectEl.dispatchEvent(new Event('change'));
+            } catch (err) {
+              new Notice('Не удалось создать: ' + (err.message || err));
+            } finally { this.pendingCreates--; b.setDisabled(false); }
+          }));
         });
       } else {
         this.values[f.key] = String(f.value ?? '');
@@ -112,7 +126,7 @@ class FieldModal extends Modal {
     });
     if (firstInputs[0]) window.setTimeout(() => firstInputs[0].focus(), 10);
   }
-  submit() { this.submitted = true; this.close(); }
+  submit() { if (this.pendingCreates) return; this.submitted = true; this.close(); }
   onClose() {
     this.contentEl.empty();
     this.resolve(this.submitted ? this.values : null);
