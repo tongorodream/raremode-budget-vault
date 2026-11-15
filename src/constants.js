@@ -61,6 +61,7 @@ const DEFAULT_SETTINGS = {
      display state, and Settings.md is the user's own hand-editable file. */
   exportFolder: 'Exports',
   chartTrendRange: '1m',
+  chartTrendDailyMode: 'day',
   chartTrendDefaultVersion: 1,
   chartDebtRange: '5y',
   /* The split comparison and spending trend have independent display ranges. */

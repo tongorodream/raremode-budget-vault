@@ -27,6 +27,13 @@
    reader should look first. Do not treat this table as final for a release. */
 
 module.exports = {
+  'dash.trend.modeLabel': 'Indlela yokubala ukuchitha',
+  'dash.trend.modeDay': 'Ngosuku',
+  'dash.trend.modeCumulative': 'Okuqoqiwe',
+  'dash.trend.daySub': 'Ukuchitha ngosuku · {period}',
+  'dash.trend.dayBudget': 'Isabelomali/ngosuku (silinganayo)',
+  'dash.trend.dayOver': 'Ngaphezu kwejubane lansuku zonke',
+  'dash.trend.dayNote': 'Ukuchitha okurekhodiwe ngosuku, ngaphandle kokonga nezinhlinzeko ezingenadethi; izimbuyiselo azikhishwa. Izinsuku ezingenakuchitha zinguziro, ezizayo aziboniswa. Amajika abushelelezi adlula emananini angempela ngaphandle kokuwalinganisela.',
   'dash.trend.dailySub': 'Ukuchitha okuqoqiwe ngosuku · {period}',
   'dash.trend.dailyAria': 'Ukuchitha okuqoqiwe kwansuku zonke · {period}',
   'dash.trend.dailyStart': 'Ukuqala',

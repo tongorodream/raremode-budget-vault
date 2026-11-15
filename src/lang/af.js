@@ -13,6 +13,13 @@
        per AWS spelling rules, not hyphenated as in English. */
 
 module.exports = {
+  'dash.trend.modeLabel': 'Berekening van besteding',
+  'dash.trend.modeDay': 'Per dag',
+  'dash.trend.modeCumulative': 'Kumulatief',
+  'dash.trend.daySub': 'Besteding per dag · {period}',
+  'dash.trend.dayBudget': 'Begroting/dag (gelyke tempo)',
+  'dash.trend.dayOver': 'Bo daaglikse tempo',
+  'dash.trend.dayNote': 'Aangetekende uitgawes per dag, sonder spaargeld en ongedateerde voorsienings; terugbetalings word nie afgetrek nie. Dae sonder uitgawes is nul; toekomstige dae bly leeg. Gladde kurwes gaan deur die werklike bedrae sonder gemiddeldes.',
   'dash.trend.dailySub': 'Kumulatiewe besteding per dag · {period}',
   'dash.trend.dailyAria': 'Daaglikse kumulatiewe besteding · {period}',
   'dash.trend.dailyStart': 'Begin',

@@ -14,6 +14,13 @@
      - Date placeholders are localised: JJJJ-MM-TT, not YYYY-MM-DD. */
 
 module.exports = {
+  'dash.trend.modeLabel': 'Ausgabenberechnung',
+  'dash.trend.modeDay': 'Pro Tag',
+  'dash.trend.modeCumulative': 'Kumuliert',
+  'dash.trend.daySub': 'Ausgaben pro Tag · {period}',
+  'dash.trend.dayBudget': 'Budget/Tag (gleichmäßig)',
+  'dash.trend.dayOver': 'Über dem Tagestempo',
+  'dash.trend.dayNote': 'Erfasste Ausgaben je Tag ohne Sparbeträge und undatierte Rückstellungen; Erstattungen werden nicht abgezogen. Tage ohne Ausgaben sind null, zukünftige Tage bleiben leer. Glatte Kurven verlaufen ohne Mittelung durch die tatsächlichen Beträge.',
   'dash.trend.dailySub': 'Kumulierte Ausgaben pro Tag · {period}',
   'dash.trend.dailyAria': 'Täglich kumulierte Ausgaben · {period}',
   'dash.trend.dailyStart': 'Start',

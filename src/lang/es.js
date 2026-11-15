@@ -15,6 +15,13 @@
      - Angular quotes «» are the Spanish convention, not "". */
 
 module.exports = {
+  'dash.trend.modeLabel': 'Cálculo del gasto',
+  'dash.trend.modeDay': 'Por día',
+  'dash.trend.modeCumulative': 'Acumulado',
+  'dash.trend.daySub': 'Gasto por día · {period}',
+  'dash.trend.dayBudget': 'Presupuesto/día (uniforme)',
+  'dash.trend.dayOver': 'Por encima del ritmo diario',
+  'dash.trend.dayNote': 'Gastos registrados por día, sin ahorros ni provisiones sin fecha; los reembolsos no se restan. Los días sin gastos son cero y los futuros quedan vacíos. Las curvas suaves pasan por los importes reales sin promediarlos.',
   'dash.trend.dailySub': 'Gasto acumulado por día · {period}',
   'dash.trend.dailyAria': 'Gasto acumulado diario · {period}',
   'dash.trend.dailyStart': 'Inicio',

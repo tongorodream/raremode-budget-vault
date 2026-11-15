@@ -28,6 +28,13 @@
        leave the app and be read by someone who never sees the interface. */
 
 module.exports = {
+  'dash.trend.modeLabel': 'Cálculo dos gastos',
+  'dash.trend.modeDay': 'Por dia',
+  'dash.trend.modeCumulative': 'Acumulado',
+  'dash.trend.daySub': 'Gastos por dia · {period}',
+  'dash.trend.dayBudget': 'Orçamento/dia (uniforme)',
+  'dash.trend.dayOver': 'Acima do ritmo diário',
+  'dash.trend.dayNote': 'Gastos registados por dia, sem poupanças nem provisões sem data; os reembolsos não são subtraídos. Dias sem gastos valem zero e dias futuros ficam vazios. As curvas suaves passam pelos valores reais sem calcular médias.',
   'dash.trend.dailySub': 'Gasto acumulado por dia · {period}',
   'dash.trend.dailyAria': 'Gasto acumulado diário · {period}',
   'dash.trend.dailyStart': 'Início',

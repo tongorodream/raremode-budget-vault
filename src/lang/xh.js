@@ -22,6 +22,13 @@
    reader should look first. Do not treat this table as final for a release. */
 
 module.exports = {
+  'dash.trend.modeLabel': 'Indlela yokubala inkcitho',
+  'dash.trend.modeDay': 'Ngemini',
+  'dash.trend.modeCumulative': 'Eqokelelweyo',
+  'dash.trend.daySub': 'Inkcitho ngemini · {period}',
+  'dash.trend.dayBudget': 'Ibhajethi/ngemini (elinganayo)',
+  'dash.trend.dayOver': 'Ngaphezu kwesantya semihla ngemihla',
+  'dash.trend.dayNote': 'Inkcitho erekhodiweyo ngemini, ngaphandle kogcino nezibonelelo ezingenamhla; iimbuyiselo azithatyathwa. Iintsuku ezingenankcitho zinguziro, ezizayo aziboniswa. Iigophe zigudile kodwa zidlula kumaxabiso okwenene ngaphandle komndilili.',
   'dash.trend.dailySub': 'Inkcitho eqokelelweyo ngemini · {period}',
   'dash.trend.dailyAria': 'Inkcitho eqokelelweyo yemihla ngemihla · {period}',
   'dash.trend.dailyStart': 'Ukuqala',

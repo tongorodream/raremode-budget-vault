@@ -230,7 +230,7 @@ const baseHead = nodes => (walk(nodes.get('dashSplit'), e => e._cls.has('dl-base
   {
     const n = await mount(vaultOf(25), '5y', '5y');
     eq(active(pillsOf(n, 'trendRange')), '1M', 'a stale 5Y trend range falls back to the daily month');
-    ok(/Cumulative spending by day/.test(n.get('trendSub').textContent), 'one-month mode actually renders daily data');
+    ok(/Spending per day/.test(n.get('trendSub').textContent), 'one-month mode defaults to daily amounts');
     eq(active(pillsOf(n, 'splitRange')), '3M', 'a stale 5Y comparison range falls back to 3M');
     eq(baseHead(n), '3M', 'the baseline column follows the fallback, not the saved key');
   }

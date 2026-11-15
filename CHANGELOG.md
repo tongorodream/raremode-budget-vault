@@ -1,5 +1,11 @@
 # Changelog
 
+## Kelly Finance 0.3.3 — 2026-11-15
+
+- The one-month spending chart defaults to **Per day**, so spending falls on quieter days and rises on more expensive days. **Cumulative** remains available in a saved mode switch.
+- Both modes use smooth shape-preserving curves through the actual daily values: no moving average, negative overshoot or invented peaks. Income follows the selected mode too.
+- A daily budget guide, when available, is explicitly an equal per-day allocation; the cumulative view retains the full period budget limit. Switching modes preserves scroll and focus.
+
 ## Kelly Finance 0.3.2 — 2026-11-15
 
 - Spending trend now offers **1M**: daily cumulative recorded expenses for the selected budget period, with daily and accumulated spending in the hover/keyboard readout.

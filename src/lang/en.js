@@ -17,6 +17,13 @@
    becoming "undefined". */
 
 module.exports = {
+  'dash.trend.modeLabel': 'Spending calculation',
+  'dash.trend.modeDay': 'Per day',
+  'dash.trend.modeCumulative': 'Cumulative',
+  'dash.trend.daySub': 'Spending per day · {period}',
+  'dash.trend.dayBudget': 'Budget/day (even pace)',
+  'dash.trend.dayOver': 'Above daily pace',
+  'dash.trend.dayNote': 'Recorded expenses for each day, excluding savings and undated provisions; refunds are not subtracted. No-spend days are zero and future days are blank. Smooth curves pass through the actual amounts without averaging.',
   'dash.trend.dailySub': 'Cumulative spending by day · {period}',
   'dash.trend.dailyAria': 'Daily cumulative spending · {period}',
   'dash.trend.dailyStart': 'Start',

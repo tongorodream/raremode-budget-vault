@@ -26,6 +26,13 @@
        held out as a first-class translation. */
 
 module.exports = {
+  'dash.trend.modeLabel': 'Perhitungan pengeluaran',
+  'dash.trend.modeDay': 'Per hari',
+  'dash.trend.modeCumulative': 'Kumulatif',
+  'dash.trend.daySub': 'Pengeluaran per hari · {period}',
+  'dash.trend.dayBudget': 'Anggaran/hari (merata)',
+  'dash.trend.dayOver': 'Di atas laju harian',
+  'dash.trend.dayNote': 'Pengeluaran tercatat per hari, tanpa tabungan dan provisi tanpa tanggal; pengembalian dana tidak dikurangi. Hari tanpa belanja bernilai nol dan hari mendatang kosong. Kurva halus melewati nilai sebenarnya tanpa merata-ratakannya.',
   'dash.trend.dailySub': 'Pengeluaran kumulatif per hari · {period}',
   'dash.trend.dailyAria': 'Pengeluaran kumulatif harian · {period}',
   'dash.trend.dailyStart': 'Awal',

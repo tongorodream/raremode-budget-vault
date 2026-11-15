@@ -27,6 +27,13 @@
        held out as a first-class translation. */
 
 module.exports = {
+  'dash.trend.modeLabel': 'खर्च की गणना',
+  'dash.trend.modeDay': 'प्रति दिन',
+  'dash.trend.modeCumulative': 'संचयी',
+  'dash.trend.daySub': 'प्रति दिन खर्च · {period}',
+  'dash.trend.dayBudget': 'बजट/दिन (समान गति)',
+  'dash.trend.dayOver': 'दैनिक गति से अधिक',
+  'dash.trend.dayNote': 'हर दिन का दर्ज खर्च दिखता है; बचत और बिना तारीख के प्रावधान शामिल नहीं, रिफंड घटाए नहीं जाते। बिना खर्च वाले दिन शून्य और भविष्य के दिन खाली हैं। चिकनी रेखाएँ बिना औसत निकाले वास्तविक राशियों से गुजरती हैं।',
   'dash.trend.dailySub': 'दिनवार संचयी खर्च · {period}',
   'dash.trend.dailyAria': 'दैनिक संचयी खर्च · {period}',
   'dash.trend.dailyStart': 'शुरुआत',

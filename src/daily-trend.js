@@ -19,7 +19,7 @@ function dailySpendingTrend({ rows, start, end, today }) {
     days.set(row.date, day);
   }
   const points = [{ date: start, opening: true, observed: start <= today,
-    spent: start <= today ? 0 : null, income: start <= today ? 0 : null, dailySpent: 0 }];
+    spent: start <= today ? 0 : null, income: start <= today ? 0 : null, dailySpent: 0, dailyIncome: 0 }];
   let spent = 0, income = 0;
   for (let n = first; n <= last; n++) {
     const date = isoFromDayNumber(n), observed = date <= today;
@@ -27,7 +27,8 @@ function dailySpendingTrend({ rows, start, end, today }) {
     spent += day.spent; income += day.income;
     if (!Number.isFinite(spent) || !Number.isFinite(income)) throw new Error('Daily trend amount overflow');
     points.push({ date, opening: false, observed, spent: observed ? roundCents(spent) : null,
-      income: observed ? roundCents(income) : null, dailySpent: observed ? roundCents(day.spent) : null });
+      income: observed ? roundCents(income) : null, dailySpent: observed ? roundCents(day.spent) : null,
+      dailyIncome: observed ? roundCents(day.income) : null });
   }
   return points;
 }

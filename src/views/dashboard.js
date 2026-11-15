@@ -2009,6 +2009,11 @@ module.exports = function registerDashboard(ctx) {
 
     const ranges = trendRanges();
     const range = trendRange(ranges);
+    const modeBox = $('#trendMode');
+    if (modeBox) { modeBox.empty(); modeBox.classList.toggle('hidden', range.key !== '1m'); }
+    const budgetLegend = $('#trendBudgetLegend'), overLegend = $('#trendOverLegend');
+    if (budgetLegend) budgetLegend.textContent = i18n.t('shell.legend.budget');
+    if (overLegend) overLegend.textContent = i18n.t('shell.legend.over');
     /* Rebuild the header controls with the series, including the daily mode. */
     const pills = $('#trendRange'); pills.empty();
     pills.append(rangePills({

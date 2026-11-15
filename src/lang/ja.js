@@ -17,6 +17,13 @@
        ISO date, unlike the localised JJJJ-MM-TT of German. */
 
 module.exports = {
+  'dash.trend.modeLabel': '支出の計算方法',
+  'dash.trend.modeDay': '日別',
+  'dash.trend.modeCumulative': '累計',
+  'dash.trend.daySub': '日別支出 · {period}',
+  'dash.trend.dayBudget': '予算/日（均等配分）',
+  'dash.trend.dayOver': '日割りの目安を超過',
+  'dash.trend.dayNote': '各日の記録済み支出を表示します。貯蓄と日付のない引当額は除外し、返金は差し引きません。支出のない日はゼロ、将来の日は空欄です。滑らかな曲線は平均化せず実際の金額を通ります。',
   'dash.trend.dailySub': '日別の累積支出 · {period}',
   'dash.trend.dailyAria': '日別の累積支出 · {period}',
   'dash.trend.dailyStart': '開始',

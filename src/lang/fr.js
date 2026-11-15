@@ -17,6 +17,13 @@
      - A colon, question mark and exclamation mark each take a space before. */
 
 module.exports = {
+  'dash.trend.modeLabel': 'Calcul des dépenses',
+  'dash.trend.modeDay': 'Par jour',
+  'dash.trend.modeCumulative': 'Cumulé',
+  'dash.trend.daySub': 'Dépenses par jour · {period}',
+  'dash.trend.dayBudget': 'Budget/jour (rythme régulier)',
+  'dash.trend.dayOver': 'Au-dessus du rythme quotidien',
+  'dash.trend.dayNote': 'Dépenses enregistrées par jour, hors épargne et provisions sans date ; les remboursements ne sont pas déduits. Les jours sans dépense valent zéro et les jours futurs restent vides. Les courbes lisses passent par les montants réels sans moyenne.',
   'dash.trend.dailySub': 'Dépenses cumulées par jour · {period}',
   'dash.trend.dailyAria': 'Dépenses cumulées quotidiennes · {period}',
   'dash.trend.dailyStart': 'Début',

@@ -29,6 +29,8 @@ assert.strictEqual(result[3].dailySpent, 79.5);
 assert.strictEqual(result[3].spent, 200);
 assert.strictEqual(result[14].spent, 200);
 assert.strictEqual(result[14].income, 950);
+assert.strictEqual(result[2].dailyIncome, 1000);
+assert.strictEqual(result[4].dailyIncome, -50, 'daily income is not the cumulative total');
 assert.strictEqual(result[15].spent, null, 'future dates are not a flat projection');
 assert.strictEqual(result[15].income, null);
 const actual = tally(rows.filter(r => r.date >= window.start && r.date <= window.today), LENSES.BUDGET);
@@ -62,10 +64,32 @@ async function load(saved) {
   const initial = await load({ chartTrendRange: '6m', theme: 'dark', privacyLock: false });
   assert.strictEqual(initial.chartTrendRange, '1m', 'existing installations switch to the requested daily default once');
   assert.strictEqual(initial.chartTrendDefaultVersion, 1);
+  assert.strictEqual(initial.chartTrendDailyMode, 'day');
   assert.strictEqual(initial.theme, 'dark');
   assert.strictEqual(initial.privacyLock, false);
   const chosen = await load({ ...initial, chartTrendRange: '3m' });
   assert.strictEqual(chosen.chartTrendRange, '3m', 'subsequent explicit range choices survive reload');
+  assert.strictEqual((await load({ ...initial, chartTrendDailyMode: 'cumulative' })).chartTrendDailyMode, 'cumulative', 'the optional cumulative mode is retained');
   assert.strictEqual((await load(null)).chartTrendRange, '1m');
+  const { makeDom } = require('./helpers/dom-stub.cjs');
+  const { $ } = makeDom();
+  const render = require('../src/daily-trend-chart');
+  const context = { $, root: $('#root'), S: { period: '2026-01' },
+    plugin: { settings: { chartTrendDailyMode: 'day' } }, money: n => String(n),
+    periodRange: () => ({ start: '2026-01-01', end: '2026-01-31' }),
+    periodTitle: () => 'January', dayLabel: d => d,
+    ledger: () => stamp([tx('2026-01-01', -50), tx('2026-01-02', -100)], env),
+    budgetTotals: () => ({ spend: 310 }), budgetUsed: () => ({ assumed: 0 }) };
+  render(context);
+  const guide = () => $('#trendChart').querySelectorAll('line').find(e => e.getAttribute('stroke-dasharray') === '5 6');
+  assert(Number(guide().getAttribute('y1')) > 150, 'daily guide is 310/31 = 10, not the whole 310 budget');
+  assert(/Budget\/day/.test($('#trendBudgetLegend').textContent));
+  const values = () => $('#trendChart').querySelectorAll('circle').filter(e => e.getAttribute('data-chart-spent') !== null).map(e => Number(e.getAttribute('data-chart-spent')));
+  assert.deepStrictEqual(values(), [50, 100, 0], 'daily rendering uses actual day totals and can fall to zero');
+  $('#trendChart').empty(); $('#trendMode').empty();
+  context.plugin.settings.chartTrendDailyMode = 'cumulative';
+  render(context);
+  assert(Number(guide().getAttribute('y1')) < 100, 'cumulative guide is the full period budget');
+  assert.deepStrictEqual(values(), [50, 150, 150]);
   console.log('PASS daily trend — daily accumulation, flats and spikes, future cutoff, ledger vetoes, income reversals, leap days, precision and default migration');
 })().catch(e => { console.error(e); process.exit(1); });
