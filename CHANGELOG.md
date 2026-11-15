@@ -1,5 +1,11 @@
 # Changelog
 
+## Kelly Finance 0.3.1 — 2026-11-15
+
+- The price-history picker now uses staple groups and icon buttons: eggs, bananas, tomatoes, separate meat cuts, kefir, cream, butter and other foods.
+- Brands and packs in a staple group share quantity-weighted monthly prices; the underlying products remain inspectable. Grams and millilitres remain separate series under one group.
+- Changing a price group, quantity measure or display unit only updates the price panel, preserving page position, the icon strip and keyboard focus.
+
 ## Kelly Finance 0.3.0 — 2026-11-14
 
 - Clicking «Продукты» in the Dashboard opens receipt-backed grocery analytics; the same page is available in the drawer.

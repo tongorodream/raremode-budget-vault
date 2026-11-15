@@ -1,6 +1,6 @@
 'use strict';
 const assert = require('assert');
-const { parseGroceryFiles, groceryAnalytics, priceHistory, nutritionFor, foodProfile } = require('../src/groceries');
+const { parseGroceryFiles, groceryAnalytics, priceHistory, nutritionFor, foodProfile, basicProduct } = require('../src/groceries');
 const { stamp, keeps, LENSES } = require('../src/ledger');
 
 const product = { name: 'Кефир 3,2%, 500 г', category: 'Молочные продукты', pack_amount: 500, pack_unit: 'g',
@@ -80,4 +80,35 @@ assert.strictEqual(parse({ ...dataset([november]), schema_version: 999 }).receip
 
 const eggs = parse({ ...dataset([november]), products: { kefir: { name: 'Яйца 10 шт.', category: 'Яйца', pack_amount: 10, pack_unit: 'pcs', nutrition: null } } });
 assert.strictEqual(priceHistory(eggs.receipts, '2026-11')[0].months[11].perUnit, 6, 'three ten-egg packs are 30 eggs, not three grams or three eggs');
-console.log('PASS groceries — ledger reconciliation, exclusions, refunds, identity, missing detail, nutrition units, weighted prices, gaps, malformed files and duplicates');
+const nameGroup = name => basicProduct({ name, category: 'Мясо и птица' }).key;
+assert.strictEqual(nameGroup('Окорок свиной охлаждённый'), 'pork-ham');
+assert.strictEqual(nameGroup('Шейка свиная без кости'), 'pork-neck');
+assert.strictEqual(nameGroup('Корейка свиная'), 'pork-loin');
+assert.strictEqual(nameGroup('Филе грудки куриное Бренд А'), 'chicken-breast');
+assert.strictEqual(nameGroup('Филе бедра куриное Бренд Б'), 'chicken-thigh');
+assert.strictEqual(nameGroup('Филе грудки индейки'), 'turkey-breast');
+assert.notStrictEqual(basicProduct({ name: 'Колбаски из свиной шеи', category: 'Колбасные изделия' }).key, 'pork-neck');
+assert.notStrictEqual(basicProduct({ name: 'Из пекарни: Лепешка томаты с базиликом 165г' }).key, 'tomatoes');
+assert.strictEqual(basicProduct({ name: 'Масло Бренд А сливочное 82,5% 180г' }).key, 'butter');
+
+const staple = (name, pack_amount, pack_unit, quantity, unit, line_total) => ({
+  detail: { name, pack_amount, pack_unit }, quantity, unit, line_total,
+});
+const grouped = priceHistory([{ date: '2026-11-03', items: [
+  staple('Томаты Бренд А 450г', 450, 'g', 1, 'pcs', 10000),
+  staple('Томаты Бренд Б весовые', null, null, 0.5, 'kg', 15000),
+  staple('Кефир Бренд А 500г', 500, 'g', 1, 'pcs', 5000),
+  staple('Кефир Бренд Б 930г', 930, 'g', 1, 'pcs', 12000),
+  staple('Сливки Бренд А 480г', 480, 'g', 1, 'pcs', 15000),
+  staple('Сливки Бренд Б 500мл', 500, 'ml', 1, 'pcs', 10000),
+] }], '2026-11');
+assert.strictEqual(grouped.filter(p => p.groupKey === 'tomatoes').length, 1);
+const tomatoes = grouped.find(p => p.groupKey === 'tomatoes');
+assert.strictEqual(tomatoes.name, 'Томаты');
+assert.strictEqual(tomatoes.variants.length, 2);
+assert.strictEqual(tomatoes.months[11].amount, 950);
+assert.strictEqual(tomatoes.months[11].perUnit, 250 / 950, 'different brands/packs use total paid cost divided by total grams');
+const kefir = grouped.find(p => p.groupKey === 'kefir');
+assert.strictEqual(kefir.months[11].perUnit, 170 / 1430);
+assert.deepStrictEqual(grouped.filter(p => p.groupKey === 'cream').map(p => p.unit).sort(), ['g', 'ml'], 'one staple chip can have separate weight and volume series');
+console.log('PASS groceries — ledger reconciliation, staple grouping across brands, meat cuts, quantity-weighted prices, separate g/ml, exclusions, nutrition, gaps and invalid data');

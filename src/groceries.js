@@ -143,8 +143,74 @@ function groceryAnalytics(receipts, transactions, { start, end, currency = 'RUB'
     products: sortedTotals(products), nutrition };
 }
 
-/* Compare the same named SKU/recipe, not a changing basket of "dairy".
-   price_key is an optional explicit stable identity across different packs. */
+const BASIC_PRODUCTS = [
+  ['eggs', 'Яйца', '🥚'], ['bananas', 'Бананы', '🍌'], ['tomatoes', 'Томаты', '🍅'],
+  ['pork-ham', 'Свинина · окорок', '🥩'], ['pork-neck', 'Свинина · шея', '🥩'],
+  ['chicken-breast', 'Куриная грудка', '🍗'], ['kefir', 'Кефир', '🥛'],
+  ['cream', 'Сливки', '🥛'], ['butter', 'Масло сливочное', '🧈'],
+];
+
+function basicProduct(product) {
+  const custom = String(product.price_group || product.price_key || '').trim();
+  if (custom) return { key: `custom:${fold(custom)}`, name: custom, icon: product.price_icon || '🍽️' };
+  const name = fold(product.name).replace(/^из пекарни:\s*/, '');
+  const group = (key, label, icon) => {
+    const known = BASIC_PRODUCTS.find(p => p[0] === key);
+    return { key, name: known ? known[1] : label, icon: known ? known[2] : icon };
+  };
+  // Match the food itself, not a filling/flavour (tomato bread is not tomatoes).
+  if (/^яйц/.test(name)) return group('eggs');
+  if (/^банан/.test(name)) return group('bananas');
+  if (/^(томаты|помидоры)(?:\s|$)/.test(name)) return group('tomatoes');
+  if (/^кефир(?:\s|$)/.test(name)) return group('kefir');
+  if (/^сливки(?:\s|$)/.test(name)) return group('cream');
+  if (/^(масло сливочное|сливочное масло)(?:\s|$)/.test(name) || (/^масло\s.*сливоч/.test(name) && !/растительн/.test(name))) return group('butter');
+  if (product.category === 'Мясо и птица' || !product.category) {
+    if (/свин/.test(name)) {
+      if (/окорок/.test(name)) return group('pork-ham');
+      if (/ше[яиюе]|шей/.test(name)) return group('pork-neck');
+      if (/корейк/.test(name)) return group('pork-loin', 'Свинина · корейка', '🥩');
+      if (/лопатк/.test(name)) return group('pork-shoulder', 'Свинина · лопатка', '🥩');
+      return group('pork-other', 'Свинина · другое', '🥩');
+    }
+    if (/курин|куриц|цыплен/.test(name)) {
+      if (/бедр/.test(name)) return group('chicken-thigh', 'Куриное бедро', '🍗');
+      if (/груд|филе/.test(name)) return group('chicken-breast');
+      return group('chicken-other', 'Курица · другое', '🍗');
+    }
+    if (/индей|индеек|индюш/.test(name)) return /груд|филе/.test(name)
+      ? group('turkey-breast', 'Грудка индейки', '🦃') : group('turkey-other', 'Индейка · другое', '🦃');
+    if (/говяд/.test(name)) return /бургер|котлет/.test(name)
+      ? group('beef-patties', 'Говяжьи котлеты', '🥩') : group('beef', 'Говядина', '🥩');
+  }
+  const rules = [
+    [/^молоко(?:\s|$)/, 'milk', 'Молоко', '🥛'], [/^творог(?:\s|$)/, 'curd', 'Творог', '🥣'],
+    [/^сметана(?:\s|$)/, 'sour-cream', 'Сметана', '🥣'], [/^сыр(?:\s|$)/, 'cheese', 'Сыр', '🧀'],
+    [/^сахар(?:\s|$)/, 'sugar', 'Сахар', '🧂'], [/^макароны|^паста(?:\s|$)/, 'pasta', 'Макароны', '🍝'],
+    [/^рис(?:\s|$)/, 'rice', 'Рис', '🍚'], [/^греч/, 'buckwheat', 'Гречка', '🌾'],
+    [/^шампиньон/, 'mushrooms', 'Шампиньоны', '🍄'], [/^шпинат/, 'spinach', 'Шпинат', '🥬'],
+    [/^картофел/, 'potatoes', 'Картофель', '🥔'], [/^огурц/, 'cucumbers', 'Огурцы', '🥒'],
+    [/^яблок/, 'apples', 'Яблоки', '🍎'], [/^кофе(?:\s|$)/, 'coffee', 'Кофе', '☕'],
+    [/^чай(?:\s|$)/, 'tea', 'Чай', '🍵'], [/^шоколад(?:\s|$)/, 'chocolate', 'Шоколад', '🍫'],
+    [/^конфет/, 'sweets', 'Конфеты', '🍬'], [/^хлебцы/, 'crispbread', 'Хлебцы', '🍞'],
+    [/^батон|^хлеб(?:\s|$)/, 'bread', 'Хлеб', '🍞'], [/^булочк/, 'buns', 'Булочки', '🥐'],
+    [/^лепешк/, 'flatbread', 'Лепёшки', '🫓'], [/^розан|^слойк/, 'puffs', 'Слойки', '🥐'],
+    [/^мини-пицц/, 'mini-pizza', 'Мини-пицца', '🍕'],
+    [/^вода(?:\s|$)/, 'water', 'Вода', '💧'], [/^напиток(?:\s|$)/, 'soft-drinks', 'Безалкогольные напитки', '🥤'],
+    [/^колбаск/, 'sausages', 'Колбаски', '🥓'], [/^грудинка/, 'brisket', 'Грудинка', '🥓'],
+    [/^кетчуп/, 'ketchup', 'Кетчуп', '🥫'], [/^квас(?:\s|$)/, 'kvass', 'Квас', '🥤'],
+    [/^попкорн/, 'popcorn', 'Попкорн', '🍿'], [/^начос/, 'nachos', 'Начос', '🌽'],
+    [/^гренки/, 'croutons', 'Гренки', '🍞'], [/^пиво(?:\s|$)/, 'beer', 'Пиво', '🍺'],
+    [/^коктейль протеиновый/, 'protein-drinks', 'Протеиновые коктейли', '🥤'],
+    [/^перец черный/, 'pepper', 'Чёрный перец', '🧂'],
+  ];
+  for (const [pattern, key, label, icon] of rules) if (pattern.test(name)) return group(key, label, icon);
+  // Unclassified recipes retain their identity; never infer a raw ingredient from a filling.
+  return group(`other:${name}`, product.name, '🍽️');
+}
+
+/* Broad staple groups intentionally combine brands and packs. Separate amount
+   units survive aggregation: cream in g and cream in ml are different series. */
 function priceHistory(receipts, endMonth, count = 12) {
   const products = new Map();
   const [y, m] = endMonth.split('-').map(Number);
@@ -160,18 +226,20 @@ function priceHistory(receipts, endMonth, count = 12) {
       if (p.food === false || p.category === 'Непродовольственное') continue;
       const q = boughtQuantity(p, item);
       if (!q || !q.amount) continue;
-      const key = `${fold(p.price_key || p.name)}\u001f${q.unit}`;
-      if (!products.has(key)) products.set(key, { key, name: p.name, unit: q.unit, months: new Map(), purchases: 0 });
+      const basic = basicProduct(p), key = `${basic.key}\u001f${q.unit}`;
+      if (!products.has(key)) products.set(key, { key, groupKey: basic.key, name: basic.name, icon: basic.icon,
+        unit: q.unit, months: new Map(), variants: new Set(), purchases: 0 });
       const product = products.get(key);
+      product.variants.add(p.name);
       const row = product.months.get(month) || { month, amount: 0, cost: 0, purchases: 0 };
       row.amount += q.amount; row.cost += item.line_total; row.purchases++; product.purchases++;
       product.months.set(month, row);
     }
   }
-  return [...products.values()].map(p => ({ ...p, months: months.map(month => {
+  return [...products.values()].map(p => ({ ...p, variants: [...p.variants].sort(), months: months.map(month => {
     const row = p.months.get(month);
     return row ? { ...row, perUnit: row.cost / 100 / row.amount } : { month, perUnit: null, purchases: 0 };
   }) })).sort((a, b) => b.purchases - a.purchases || a.name.localeCompare(b.name));
 }
 
-module.exports = { CATEGORY, GROUPS, foodProfile, boughtQuantity, nutritionFor, parseGroceryFiles, linkedReceipts, groceryAnalytics, priceHistory };
+module.exports = { CATEGORY, GROUPS, BASIC_PRODUCTS, basicProduct, foodProfile, boughtQuantity, nutritionFor, parseGroceryFiles, linkedReceipts, groceryAnalytics, priceHistory };

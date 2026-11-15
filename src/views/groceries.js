@@ -4,7 +4,7 @@ const { el, icoEl } = require('../dom');
 const { createChart, arcPath, tip, themeColors, SLICE_PALETTE } = require('../chart');
 const { keeps } = require('../ledger');
 const { sharePercents } = require('../share-percents');
-const { CATEGORY, GROUPS, boughtQuantity, parseGroceryFiles, groceryAnalytics, priceHistory } = require('../groceries');
+const { CATEGORY, GROUPS, BASIC_PRODUCTS, boughtQuantity, parseGroceryFiles, groceryAnalytics, priceHistory } = require('../groceries');
 
 module.exports = function registerGroceries(ctx) {
   const { S, $, app, vault, root, money } = ctx;
@@ -136,22 +136,63 @@ module.exports = function registerGroceries(ctx) {
   }
 
   function renderPrices(host, history, endMonth) {
-    const section = card('Как менялась цена', 'chart-no-axes-combined', 'Последние 12 календарных месяцев. Средневзвешенная фактически оплаченная цена одного и того же товара, с учётом скидок.');
+    const section = card('Как менялась цена', 'chart-no-axes-combined', 'Последние 12 календарных месяцев. Средняя цена базовых продуктов: марки и фасовки объединены, части мяса разделены.');
     section.classList.add('gr-prices');
     const products = priceHistory(history, endMonth);
     if (!products.length) { section.append(small('Нужны чеки с количеством и фасовкой. Покупки без состава не дают цену за грамм.')); host.append(section); return; }
-    if (!products.some(p => p.key === selectedProduct)) selectedProduct = products[0].key;
-    const select = el('select', { class: 'form-select', 'aria-label': 'Продукт для сравнения цен', onchange: e => { selectedProduct = e.target.value; renderGroceries(); } },
-      products.map(p => el('option', { value: p.key }, p.name)));
-    select.value = selectedProduct;
-    const product = products.find(p => p.key === selectedProduct), unit = product.unit;
-    const scaleSelect = el('select', { class: 'form-select', 'aria-label': 'Единица сравнения цены', onchange: e => { priceScale = Number(e.target.value); renderGroceries(); } },
+    const groups = new Map(BASIC_PRODUCTS.map(([key, name, icon]) => [key, { key, name, icon, series: [] }]));
+    for (const product of products) {
+      if (!groups.has(product.groupKey)) groups.set(product.groupKey, { key: product.groupKey, name: product.name, icon: product.icon, series: [] });
+      groups.get(product.groupKey).series.push(product);
+    }
+    if (!products.some(p => p.key === selectedProduct)) selectedProduct = [...groups.values()].find(g => g.series.length).series[0].key;
+    const picker = el('div', { class: 'gr-staple-picker', role: 'group', 'aria-label': 'Базовый продукт для сравнения цен' });
+    const body = el('div', { class: 'gr-price-body' });
+    const buttons = new Map();
+    // Only the details change. The page, picker and focused chip stay mounted.
+    function updatePrices(focus) {
+      const scroller = section.closest('.bud-scroll');
+      const top = scroller?.scrollTop, left = scroller?.scrollLeft;
+      const product = products.find(p => p.key === selectedProduct);
+      for (const [key, chip] of buttons) chip.setAttribute('aria-pressed', String(key === product.groupKey));
+      body.replaceChildren();
+      drawPriceSeries(body, product, groups.get(product.groupKey).series, updatePrices);
+      if (focus) body.querySelector(`[aria-label="${focus}"]`)?.focus({ preventScroll: true });
+      if (scroller) { scroller.scrollTop = top; scroller.scrollLeft = left; }
+    }
+    for (const group of groups.values()) {
+      const chip = el('button', { type: 'button', class: 'gr-staple-chip',
+        disabled: group.series.length ? null : '', 'aria-label': group.name, 'aria-pressed': 'false',
+        title: group.series.length ? group.name : `${group.name}: пока нет покупок с количеством`,
+        onclick: () => {
+          const current = products.find(p => p.key === selectedProduct);
+          selectedProduct = (group.series.find(p => p.unit === current?.unit) || group.series[0]).key;
+          updatePrices();
+        } }, el('span', { class: 'gr-staple-icon', 'aria-hidden': 'true' }, group.icon), el('span', {}, group.name));
+      buttons.set(group.key, chip); picker.append(chip);
+    }
+    section.append(picker, small('Выбери продукт. Лента с иконками прокручивается по горизонтали; серые группы пока без покупок.'), body);
+    updatePrices(); host.append(section);
+  }
+
+  function drawPriceSeries(section, product, series, updatePrices) {
+    const unit = product.unit;
+    const controls = el('div', { class: 'gr-price-controls' });
+    if (series.length > 1) {
+      const measure = el('select', { class: 'form-select', 'aria-label': 'Мера продукта', onchange: e => { selectedProduct = e.target.value; updatePrices('Мера продукта'); } },
+        series.map(p => el('option', { value: p.key }, p.unit === 'g' ? 'По весу — граммы' : p.unit === 'ml' ? 'По объёму — миллилитры' : 'По количеству — штуки')));
+      measure.value = product.key; controls.append(measure);
+    }
+    const scaleSelect = el('select', { class: 'form-select', 'aria-label': 'Единица сравнения цены', onchange: e => { priceScale = Number(e.target.value); updatePrices('Единица сравнения цены'); } },
       (unit === 'pcs' ? [[1, 'За 1 штуку']] : [[1, unit === 'g' ? 'За 1 грамм' : 'За 1 миллилитр'], [100, unit === 'g' ? 'За 100 грамм' : 'За 100 миллилитров'], [1000, unit === 'g' ? 'За 1 килограмм' : 'За 1 литр']]).map(([value, label]) => el('option', { value }, label)));
     const scale = unit === 'pcs' ? 1 : priceScale;
     scaleSelect.value = String(scale);
-    section.append(el('div', { class: 'gr-price-controls' }, select, scaleSelect));
+    controls.append(scaleSelect);
+    section.append(el('h3', { class: 'gr-price-name' }, `${product.icon} ${product.name}`), controls);
     const known = product.months.filter(m => m.perUnit !== null);
-    section.append(small(known.length < 2 ? 'Пока есть только один месяц с детализацией. Линия динамики появится после покупок в другом месяце; пропуски не заменяются нулями.' : 'Сопоставляется этот товар, а не средняя цена меняющегося набора продуктов.'));
+    section.append(small(known.length < 2 ? 'Пока есть только один месяц с детализацией. Линия динамики появится после покупок в другом месяце; пропуски не заменяются нулями.' : 'Средняя по группе зависит и от выбранных марок, сортов и жирности. Это не индекс инфляции одной неизменной позиции.'));
+    section.append(el('details', { class: 'gr-price-variants' }, el('summary', {}, `Какие товары объединены: ${product.variants.length}`),
+      el('ul', {}, product.variants.map(name => el('li', {}, name)))));
     const caption = unit === 'g' ? (scale === 1000 ? 'кг' : `${scale} г`) : unit === 'ml' ? (scale === 1000 ? 'л' : `${scale} мл`) : 'шт.';
     const latest = known[known.length - 1];
     section.append(el('div', { class: 'gr-price-current' }, el('span', {}, `Средняя цена · ${monthLabel(latest.month)}`),
@@ -169,7 +210,6 @@ module.exports = function registerGroceries(ctx) {
     });
     table.append(body); section.append(el('div', { class: 'gr-table-wrap' }, table),
       small('Цена = сумма оплаченных строк / купленное количество. Граммы и миллилитры не смешиваются. Яйца — за штуку; бананы — за купленный вес с кожурой. Изменение считается только к соседнему месяцу с покупками.'));
-    host.append(section);
   }
 
   function priceChart(host, product, scale, caption) {
