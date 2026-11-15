@@ -65,9 +65,10 @@ number	26	-	trendChart/svg/text[2]
 number	26	-	trendChart/svg/text[3]
 number	26	-	trendChart/svg/text[4]
 number	26	-	trendChart/svg/text[5]
-number	3	-	trendRange/div.chart-range/button.chart-range-btn[0]
-number	6	-	trendRange/div.chart-range/button.chart-range-btn[1]
-number	1	-	trendRange/div.chart-range/button.chart-range-btn[2]
+number	1	-	trendRange/div.chart-range/button.chart-range-btn[0]
+number	3	-	trendRange/div.chart-range/button.chart-range-btn[1]
+number	6	-	trendRange/div.chart-range/button.chart-range-btn[2]
+number	1	-	trendRange/div.chart-range/button.chart-range-btn[3]
 number	6	-	trendSub/
 money	R 1 500,00	1500	dashSplit/svg.donut/path.donut-slice/title
 percent	100%	-	dashSplit/svg.donut/path.donut-slice/title

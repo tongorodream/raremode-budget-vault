@@ -14,6 +14,12 @@
      - Date placeholders are localised: JJJJ-MM-TT, not YYYY-MM-DD. */
 
 module.exports = {
+  'dash.trend.dailySub': 'Kumulierte Ausgaben pro Tag · {period}',
+  'dash.trend.dailyAria': 'Täglich kumulierte Ausgaben · {period}',
+  'dash.trend.dailyStart': 'Start',
+  'dash.trend.dailyDay': 'An diesem Tag ausgegeben',
+  'dash.trend.dailyNote': 'Erfasste Ausgaben werden täglich aufsummiert; Erstattungen werden nicht abgezogen. Sparbeträge und undatierte Rückstellungen sind ausgeschlossen. Zukünftige Tage haben keine Ausgabenpunkte.',
+  'dash.trend.dailyProvision': 'Undatierte angenommene Ausgaben: {amount}. Sie werden nicht als tägliche Transaktion dargestellt.',
   /* ------------------------------- splash -------------------------------- */
   'splash.sub': 'Dein privates Budget, sicher in deinem Vault aufbewahrt.',
   'splash.enter': 'Budget öffnen',

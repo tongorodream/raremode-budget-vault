@@ -28,6 +28,12 @@
        leave the app and be read by someone who never sees the interface. */
 
 module.exports = {
+  'dash.trend.dailySub': 'Gasto acumulado por dia · {period}',
+  'dash.trend.dailyAria': 'Gasto acumulado diário · {period}',
+  'dash.trend.dailyStart': 'Início',
+  'dash.trend.dailyDay': 'Gasto nesse dia',
+  'dash.trend.dailyNote': 'Os gastos registados acumulam-se por dia; os reembolsos não são subtraídos. Poupanças e provisões sem data ficam excluídas. Os dias futuros não têm pontos de despesa.',
+  'dash.trend.dailyProvision': 'Provisão de gasto presumido sem data: {amount}. Não é representada como transação diária.',
   /* ------------------------------- splash -------------------------------- */
   'splash.sub': 'Seu orçamento particular, guardado com segurança dentro do seu cofre.',
   'splash.enter': 'Entrar no orçamento',

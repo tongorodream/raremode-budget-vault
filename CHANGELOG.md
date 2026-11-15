@@ -1,5 +1,12 @@
 # Changelog
 
+## Kelly Finance 0.3.2 — 2026-11-15
+
+- Spending trend now offers **1M**: daily cumulative recorded expenses for the selected budget period, with daily and accumulated spending in the hover/keyboard readout.
+- No-spend days stay flat; future dates remain unplotted. The period budget is a fixed limit, and savings/undated assume-spent provisions are not assigned invented spending dates.
+- One-month mode is the default for new installations and is selected once when upgrading. Later explicit range choices are remembered. Longer comparison ranges remain available.
+- Daily calculations use the existing budget ledger exclusions and currency scope. All twelve interface languages include the new labels.
+
 ## Kelly Finance 0.3.1 — 2026-11-15
 
 - The price-history picker now uses staple groups and icon buttons: eggs, bananas, tomatoes, separate meat cuts, kefir, cream, butter and other foods.

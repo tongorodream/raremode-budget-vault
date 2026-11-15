@@ -45,6 +45,7 @@ const { incomeRemainingText } = require('./budgets');
 const { keeps, dropsAnyOf, isRefund } = require('../ledger');
 const { poolAccounts } = require('../vocabulary');
 const { subcategorySpend } = require('../subcategories');
+const renderDailyTrend = require('../daily-trend-chart');
 
 module.exports = function registerDashboard(ctx) {
   let expandedCategory = null;
@@ -1989,7 +1990,9 @@ module.exports = function registerDashboard(ctx) {
      periodsForMonths / trendPeriods / historySpan (and the comparison maths
      further down) live in trend-math.js now — pure period arithmetic,
      testable in bare node. This file draws what they compute. */
-  const trendRanges = () => historicalRanges(historySpan(), i18n.t('dash.range.all'));
+  const dailyRange = { key: '1m', label: '1M', months: 1 };
+  const trendRanges = () => [{ ...dailyRange, label: Number(S.settings.period_days) > 0 ? '1P' : '1M' },
+    ...historicalRanges(historySpan(), i18n.t('dash.range.all'))];
 
   /* The saved range is only honoured while it is still on offer. A vault that
      had five years and then had its oldest statements removed must not sit on a
@@ -1997,15 +2000,27 @@ module.exports = function registerDashboard(ctx) {
      control showing which one is active. */
   const trendRange = (ranges = trendRanges()) =>
     ranges.find(r => r.key === plugin.settings.chartTrendRange)
-    || ranges.find(r => r.key === '6m')
+    || ranges.find(r => r.key === '1m')
     || ranges[0]
-    || rangeFor('6m');
+    || dailyRange;
 
   function renderTrend() {
     const wrap = $('#trendChart'); wrap.empty();
 
     const ranges = trendRanges();
     const range = trendRange(ranges);
+    /* Rebuild the header controls with the series, including the daily mode. */
+    const pills = $('#trendRange'); pills.empty();
+    pills.append(rangePills({
+      ranges, value: range.key, label: i18n.t('dash.trend.range'),
+      onPick: async key => {
+        plugin.settings.chartTrendRange = key;
+        try { await plugin.saveSettings(); }
+        catch (e) { toast(i18n.t('settings.err.save', { error: e.message || e }), true); }
+        guardedTrend();
+      },
+    }));
+    if (range.key === '1m') { renderDailyTrend(ctx); return; }
     /* "All" asks for everything and lets trendPeriods stop itself at the
        earliest imported month, so it is given a couple of periods of headroom:
        a pay cycle that is not a calendar month rounds its month count short,
@@ -2035,29 +2050,6 @@ module.exports = function registerDashboard(ctx) {
         running: p === currentPeriod(),
       };
     });
-
-    /* The pills live in the header, but they are rebuilt here so the active
-       one can never disagree with the series actually drawn below. */
-    const pills = $('#trendRange'); pills.empty();
-    pills.append(rangePills({
-      ranges,
-      value: range.key,
-      label: i18n.t('dash.trend.range'),
-      onPick: async key => {
-        plugin.settings.chartTrendRange = key;
-        // Guarded like every other write in this app: a rejected
-        // saveSettings() used to be an unhandled rejection. The chart still
-        // redraws either way — the range picked is real in memory even if it
-        // did not reach data.json, and refusing to redraw over a persistence
-        // failure would make one problem look like two.
-        try {
-          await plugin.saveSettings();
-        } catch (e) {
-          toast(i18n.t('settings.err.save', { error: e.message || e }), true);
-        }
-        renderTrend();
-      },
-    }));
 
     /* Say when the range was cut short, rather than letting a "1Y" pill sit
        above six months of chart with nothing to explain the difference. "All"

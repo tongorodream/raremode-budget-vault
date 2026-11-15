@@ -207,6 +207,8 @@ class BudgetPlugin extends Plugin {
   async loadSettings() {
     const saved = await this.loadData();
     this.settings = Object.assign({}, DEFAULT_SETTINGS, saved);
+    // Once on upgrade, prefer the new daily month view; subsequent choices persist.
+    if (saved?.chartTrendDefaultVersion !== 1) this.settings.chartTrendRange = '1m';
     if (!saved?.budgetFolder && this.app.vault?.getFileByPath?.('Финансы/Бюджет/Settings.md')) {
       this.settings.budgetFolder = 'Финансы/Бюджет';
     }

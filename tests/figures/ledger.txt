@@ -49,9 +49,10 @@ money	R 15 500,00	15500	trendChart/svg/rect[1]/title
 money	R 30 000,00	30000	trendChart/svg/rect[1]/title
 number	26	-	trendChart/svg/text[0]
 number	26	-	trendChart/svg/text[1]
-number	3	-	trendRange/div.chart-range/button.chart-range-btn[0]
-number	6	-	trendRange/div.chart-range/button.chart-range-btn[1]
-number	1	-	trendRange/div.chart-range/button.chart-range-btn[2]
+number	1	-	trendRange/div.chart-range/button.chart-range-btn[0]
+number	3	-	trendRange/div.chart-range/button.chart-range-btn[1]
+number	6	-	trendRange/div.chart-range/button.chart-range-btn[2]
+number	1	-	trendRange/div.chart-range/button.chart-range-btn[3]
 number	2	-	trendSub/
 money	R 9 000,00	9000	dashSplit/svg.donut/path.donut-slice[0]/title
 percent	66%	-	dashSplit/svg.donut/path.donut-slice[0]/title

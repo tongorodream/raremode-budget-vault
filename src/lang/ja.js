@@ -17,6 +17,12 @@
        ISO date, unlike the localised JJJJ-MM-TT of German. */
 
 module.exports = {
+  'dash.trend.dailySub': '日別の累積支出 · {period}',
+  'dash.trend.dailyAria': '日別の累積支出 · {period}',
+  'dash.trend.dailyStart': '開始',
+  'dash.trend.dailyDay': 'この日の支出',
+  'dash.trend.dailyNote': '記録された支出を日ごとに累計します。返金は差し引きません。貯蓄と日付のない引当額は除外され、将来の日の支出は描画されません。',
+  'dash.trend.dailyProvision': '日付のない想定支出の引当額：{amount}。日別の取引としては描画されません。',
   /* ------------------------------- splash -------------------------------- */
   'splash.sub': 'あなただけの予算を、保管庫の中に安全に保管します。',
   'splash.enter': '予算を開く',

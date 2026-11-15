@@ -27,6 +27,12 @@
    reader should look first. Do not treat this table as final for a release. */
 
 module.exports = {
+  'dash.trend.dailySub': 'Ukuchitha okuqoqiwe ngosuku · {period}',
+  'dash.trend.dailyAria': 'Ukuchitha okuqoqiwe kwansuku zonke · {period}',
+  'dash.trend.dailyStart': 'Ukuqala',
+  'dash.trend.dailyDay': 'Okuchithwe ngalolo suku',
+  'dash.trend.dailyNote': 'Ukuchitha okurekhodiwe kuqoqwa ngosuku; izimbuyiselo azikhishwa. Ukonga nezinhlinzeko ezingenadethi akufakwa. Izinsuku ezizayo aziboniswa njengokuchitha.',
+  'dash.trend.dailyProvision': 'Inhlinzeko yokuchitha engenadethi: {amount}. Ayiboniswa njengokuthengiselana kwansuku zonke.',
   /* ------------------------------- splash -------------------------------- */
   'splash.sub': 'Isabelomali sakho sangasese, sigcinwe siphephile ngaphakathi kwivolti yakho.',
   'splash.enter': 'Ngena esabelweni-mali',

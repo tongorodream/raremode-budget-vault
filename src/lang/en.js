@@ -17,6 +17,12 @@
    becoming "undefined". */
 
 module.exports = {
+  'dash.trend.dailySub': 'Cumulative spending by day · {period}',
+  'dash.trend.dailyAria': 'Daily cumulative spending · {period}',
+  'dash.trend.dailyStart': 'Start',
+  'dash.trend.dailyDay': 'Spent that day',
+  'dash.trend.dailyNote': 'Recorded spending accumulates by day; refunds are not subtracted. Savings and undated provisions are excluded. Future days have no plotted expenses.',
+  'dash.trend.dailyProvision': 'Undated assume-spent provision: {amount}. It is not plotted as a daily transaction.',
   /* ------------------------------- splash -------------------------------- */
   'splash.sub': 'Your private budget, kept safely inside your vault.',
   'splash.enter': 'Enter budget',

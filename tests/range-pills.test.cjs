@@ -192,7 +192,7 @@ const baseHead = nodes => (walk(nodes.get('dashSplit'), e => e._cls.has('dl-base
   /* Under a year: neither card offers a long range. */
   {
     const n = await mount(vaultOf(8), '6m', '3m');
-    eq(labels(pillsOf(n, 'trendRange')), ['3M', '6M', '1Y'], 'eight months: trend offers three');
+    eq(labels(pillsOf(n, 'trendRange')), ['1M', '3M', '6M', '1Y'], 'eight months: daily month plus three historical ranges');
     eq(labels(pillsOf(n, 'splitRange')), ['Last month', '3M', '6M', '1Y'],
       'eight months: the donut offers four');
   }
@@ -200,7 +200,7 @@ const baseHead = nodes => (walk(nodes.get('dashSplit'), e => e._cls.has('dl-base
   /* Past a year: All on both, 5Y on neither. */
   {
     const n = await mount(vaultOf(25), '6m', '3m');
-    eq(labels(pillsOf(n, 'trendRange')), ['3M', '6M', '1Y', 'All'], 'two years: trend gains All');
+    eq(labels(pillsOf(n, 'trendRange')), ['1M', '3M', '6M', '1Y', 'All'], 'two years: trend gains All');
     eq(labels(pillsOf(n, 'splitRange')), ['Last month', '3M', '6M', '1Y', 'All'],
       'two years: the donut gains All');
   }
@@ -208,7 +208,7 @@ const baseHead = nodes => (walk(nodes.get('dashSplit'), e => e._cls.has('dl-base
   /* Past five: both, longest last. */
   {
     const n = await mount(vaultOf(70), '6m', '3m');
-    eq(labels(pillsOf(n, 'trendRange')), ['3M', '6M', '1Y', '5Y', 'All'], 'six years: trend gains 5Y');
+    eq(labels(pillsOf(n, 'trendRange')), ['1M', '3M', '6M', '1Y', '5Y', 'All'], 'six years: trend gains 5Y');
     eq(labels(pillsOf(n, 'splitRange')), ['Last month', '3M', '6M', '1Y', '5Y', 'All'],
       'six years: the donut gains 5Y');
   }
@@ -229,7 +229,8 @@ const baseHead = nodes => (walk(nodes.get('dashSplit'), e => e._cls.has('dl-base
      nothing: five years saved, two years of data. */
   {
     const n = await mount(vaultOf(25), '5y', '5y');
-    eq(active(pillsOf(n, 'trendRange')), '6M', 'a stale 5Y trend range falls back to 6M');
+    eq(active(pillsOf(n, 'trendRange')), '1M', 'a stale 5Y trend range falls back to the daily month');
+    ok(/Cumulative spending by day/.test(n.get('trendSub').textContent), 'one-month mode actually renders daily data');
     eq(active(pillsOf(n, 'splitRange')), '3M', 'a stale 5Y comparison range falls back to 3M');
     eq(baseHead(n), '3M', 'the baseline column follows the fallback, not the saved key');
   }

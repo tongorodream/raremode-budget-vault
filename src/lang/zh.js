@@ -17,6 +17,12 @@
        ISO date, unlike the localised JJJJ-MM-TT of German. */
 
 module.exports = {
+  'dash.trend.dailySub': '按日累计支出 · {period}',
+  'dash.trend.dailyAria': '每日累计支出 · {period}',
+  'dash.trend.dailyStart': '开始',
+  'dash.trend.dailyDay': '当天支出',
+  'dash.trend.dailyNote': '按天累计已记录的支出，不扣除退款。储蓄和无日期的预留金额不计入；未来日期不绘制支出。',
+  'dash.trend.dailyProvision': '无日期的假定支出预留：{amount}。不会作为每日交易绘制。',
   /* ------------------------------- splash -------------------------------- */
   'splash.sub': '你的私人预算，安全地保存在你的仓库中。',
   'splash.enter': '进入预算',

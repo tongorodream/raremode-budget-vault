@@ -48,7 +48,8 @@ const DEFAULT_SETTINGS = {
   acctColWidths: {},
   onboarded: false,       // first-run wizard shown (or an existing budget was detected)
   privacyLock: true,      // splash gate: nothing loads or paints until "Enter budget" is tapped
-  /* Chart time ranges (keys from RANGES in chart.js). Plugin data rather than
+  /* Chart time ranges (projection keys in chart.js; trend modes in dashboard).
+     Plugin data rather than
      Settings.md: these are display state, and Settings.md is the user's own
      hand-editable file — UI preferences do not belong in it. Two keys rather
      than one because the two charts mean different things by a range (history
@@ -59,13 +60,10 @@ const DEFAULT_SETTINGS = {
      rather than Settings.md for the same reason the chart ranges are: it is
      display state, and Settings.md is the user's own hand-editable file. */
   exportFolder: 'Exports',
-  chartTrendRange: '6m',
+  chartTrendRange: '1m',
+  chartTrendDefaultVersion: 1,
   chartDebtRange: '5y',
-  /* Which window "Where it went" measures this period against. Its own key
-     rather than sharing chartTrendRange: the trend plots one point per period
-     and cannot usefully draw a single one, so it has no 1M pill — and a shared
-     key would put one there. Same plugin-data-not-Settings.md reasoning as the
-     two above. */
+  /* The split comparison and spending trend have independent display ranges. */
   splitCompareRange: '3m',
 };
 

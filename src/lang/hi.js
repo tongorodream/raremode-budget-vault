@@ -27,6 +27,12 @@
        held out as a first-class translation. */
 
 module.exports = {
+  'dash.trend.dailySub': 'दिनवार संचयी खर्च · {period}',
+  'dash.trend.dailyAria': 'दैनिक संचयी खर्च · {period}',
+  'dash.trend.dailyStart': 'शुरुआत',
+  'dash.trend.dailyDay': 'उस दिन का खर्च',
+  'dash.trend.dailyNote': 'दर्ज खर्च दिनवार जोड़े जाते हैं; रिफंड घटाए नहीं जाते। बचत और बिना तारीख के प्रावधान शामिल नहीं हैं। भविष्य के दिनों का खर्च नहीं दिखाया जाता।',
+  'dash.trend.dailyProvision': 'बिना तारीख का अनुमानित खर्च प्रावधान: {amount}। इसे दैनिक लेनदेन के रूप में नहीं दिखाया जाता।',
   /* ------------------------------- splash -------------------------------- */
   'splash.sub': 'आपका निजी बजट, आपके अपने वॉल्ट में सुरक्षित रखा हुआ।',
   'splash.enter': 'बजट खोलें',

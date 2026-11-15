@@ -15,6 +15,12 @@
      - Angular quotes «» are the Spanish convention, not "". */
 
 module.exports = {
+  'dash.trend.dailySub': 'Gasto acumulado por día · {period}',
+  'dash.trend.dailyAria': 'Gasto acumulado diario · {period}',
+  'dash.trend.dailyStart': 'Inicio',
+  'dash.trend.dailyDay': 'Gastado ese día',
+  'dash.trend.dailyNote': 'Los gastos registrados se acumulan por día; los reembolsos no se restan. Se excluyen ahorros y provisiones sin fecha. No se dibujan gastos en días futuros.',
+  'dash.trend.dailyProvision': 'Provisión de gasto supuesto sin fecha: {amount}. No se representa como transacción diaria.',
   /* ------------------------------- splash -------------------------------- */
   'splash.sub': 'Tu presupuesto privado, guardado de forma segura dentro de tu bóveda.',
   'splash.enter': 'Abrir presupuesto',

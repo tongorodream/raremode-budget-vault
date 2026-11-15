@@ -13,6 +13,12 @@
        per AWS spelling rules, not hyphenated as in English. */
 
 module.exports = {
+  'dash.trend.dailySub': 'Kumulatiewe besteding per dag · {period}',
+  'dash.trend.dailyAria': 'Daaglikse kumulatiewe besteding · {period}',
+  'dash.trend.dailyStart': 'Begin',
+  'dash.trend.dailyDay': 'Daardie dag bestee',
+  'dash.trend.dailyNote': 'Aangetekende besteding tel per dag op; terugbetalings word nie afgetrek nie. Spaarbedrae en ongedateerde voorsienings is uitgesluit. Toekomstige dae het geen bestedingspunte nie.',
+  'dash.trend.dailyProvision': 'Ongedateerde veronderstelde besteding: {amount}. Dit word nie as daaglikse transaksie geteken nie.',
   /* ------------------------------- splash -------------------------------- */
   'splash.sub': 'Jou private begroting, veilig bewaar binne-in jou kluis.',
   'splash.enter': 'Gaan na begroting',

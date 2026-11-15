@@ -17,6 +17,12 @@
      - A colon, question mark and exclamation mark each take a space before. */
 
 module.exports = {
+  'dash.trend.dailySub': 'Dépenses cumulées par jour · {period}',
+  'dash.trend.dailyAria': 'Dépenses cumulées quotidiennes · {period}',
+  'dash.trend.dailyStart': 'Début',
+  'dash.trend.dailyDay': 'Dépensé ce jour',
+  'dash.trend.dailyNote': 'Les dépenses enregistrées se cumulent par jour ; les remboursements ne sont pas déduits. Épargne et provisions sans date sont exclues. Aucun point de dépense ne représente les jours futurs.',
+  'dash.trend.dailyProvision': 'Provision de dépense supposée sans date : {amount}. Elle ne figure pas comme transaction quotidienne.',
   /* ------------------------------- splash -------------------------------- */
   'splash.sub': 'Votre budget privé, conservé en sécurité dans votre coffre.',
   'splash.enter': 'Ouvrir le budget',

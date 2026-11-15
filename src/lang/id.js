@@ -26,6 +26,12 @@
        held out as a first-class translation. */
 
 module.exports = {
+  'dash.trend.dailySub': 'Pengeluaran kumulatif per hari · {period}',
+  'dash.trend.dailyAria': 'Pengeluaran kumulatif harian · {period}',
+  'dash.trend.dailyStart': 'Awal',
+  'dash.trend.dailyDay': 'Belanja hari itu',
+  'dash.trend.dailyNote': 'Pengeluaran tercatat diakumulasikan per hari; pengembalian dana tidak dikurangi. Tabungan dan provisi tanpa tanggal dikecualikan. Hari mendatang tidak memiliki titik pengeluaran.',
+  'dash.trend.dailyProvision': 'Provisi pengeluaran asumsi tanpa tanggal: {amount}. Tidak digambar sebagai transaksi harian.',
   /* ------------------------------- splash -------------------------------- */
   'splash.sub': 'Anggaran pribadi Anda, tersimpan aman di dalam vault Anda sendiri.',
   'splash.enter': 'Masuk ke anggaran',
