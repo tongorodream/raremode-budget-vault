@@ -17,6 +17,9 @@
      - A colon, question mark and exclamation mark each take a space before. */
 
 module.exports = {
+  'tx.receipt.items': { one: '{count} article du reçu', other: '{count} articles du reçu' },
+  'tx.receipt.paid': 'Payé',
+  'tx.receipt.source': 'Reçu ↗',
   'dash.trend.modeLabel': 'Calcul des dépenses',
   'dash.trend.modeDay': 'Par jour',
   'dash.trend.modeCumulative': 'Cumulé',

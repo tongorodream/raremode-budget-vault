@@ -16,6 +16,8 @@ const { prepareRules, matchRule } = require('../rules');
 /* Namespace import: this file binds `t` as a local (`const t = $('#txTable')`). */
 const i18n = require('../i18n');
 const { subcategoryOf, subcategoryOptions, subcategoryList, withSubcategoryColumn } = require('../subcategories');
+const { receiptForTransaction } = require('../groceries');
+const receiptDetail = require('../receipt-detail');
 
 /* A category colour that may be written into a style attribute (see catDots). */
 const DOT_HEX = /^#[0-9a-fA-F]{3,8}$/;
@@ -100,6 +102,7 @@ module.exports = function registerTransactions(ctx) {
      import review): desc → category, flushed to the rules CSV on save. A Map
      so re-picking the same transaction keeps only the final choice. */
   const pendingLearns = new Map();
+  const expandedReceipts = new WeakSet();
 
   /* How many of the vault's transactions a rule DECIDES: the rows whose
      description that rule would win if they were imported today. The number
@@ -549,8 +552,21 @@ module.exports = function registerTransactions(ctx) {
        or no usable colour, simply gets no dot. */
     const catDots = new Map();
     for (const c of S.categories || []) if (c && c.name && DOT_HEX.test(String(c.color || ''))) catDots.set(c.name, c.color);
+    const receipts = new Map((S.groceryData?.receipts || []).map(r => [r.id, r]));
     for (const item of list) {
       const r = item._row;
+      const account = typeof ctx.accountForLabel === 'function' ? ctx.accountForLabel(item.label) : null;
+      const code = account?.currency_code || (rowSymbol(r) === S.settings?.currency ? S.settings?.currency_code : '');
+      const receipt = receiptForTransaction(receipts, r, code);
+      let panelRow = null;
+      const disclosure = receipt ? el('button', { type: 'button', class: 'bv-receipt-toggle',
+        'aria-expanded': 'false', onclick: e => { e.stopPropagation(); toggleReceipt(); } },
+        el('span', { class: 'bv-receipt-chevron', 'aria-hidden': 'true' }, '›'),
+        el('span', {}, r.desc), el('small', {}, i18n.t('tx.receipt.items', { count: receipt.items.length }))) : null;
+      const noteInput = el('input', { type: 'text', class: 'form-control form-control-sm', value: r.note, style: 'width:130px',
+        'aria-label': i18n.t('tx.aria.note', { date: r.date, desc: r.desc }),
+        onchange: e => { r.note = e.target.value; mark(); } });
+      const noteField = receipt ? el('details', { class: 'bv-receipt-note' }, el('summary', {}, i18n.t('tx.col.note')), noteInput) : noteInput;
       const mark = () => { item._file.dirty = true; $('#txSave').disabled = false; };
       // Captured once per render, before any edit — the on-disk category this
       // row arrived with. Deliberately NOT re-read from r.cat inside the
@@ -571,9 +587,9 @@ module.exports = function registerTransactions(ctx) {
       };
       fillSubSelect();
       subSelect.addEventListener('change', () => { r.subcategory = subSelect.value; mark(); });
-      body.append(el('tr', {},
+      const mainRow = el('tr', receipt ? { class: 'bv-tx-has-receipt' } : {},
         el('td', { class: 'text-muted' }, r.date),
-        el('td', {}, r.desc),
+        el('td', {}, disclosure || r.desc),
         el('td', { class: 'text-muted' }, item.label),
         // deferredCatSelect: a button until first use. See categories.js — at a
         // full page of rows this is the difference between 0 and 100 native
@@ -626,15 +642,33 @@ module.exports = function registerTransactions(ctx) {
            class: the figures harness addresses this cell as td.num[4]. */
         amountCell(item),
         el('td', {}, excludedCell(item, mark)),
-        el('td', {}, el('input', { type: 'text', class: 'form-control form-control-sm', value: r.note, style: 'width:130px',
-          'aria-label': i18n.t('tx.aria.note', { date: r.date, desc: r.desc }),
-          onchange: e => { r.note = e.target.value; mark(); } })),
+        el('td', receipt ? { class: 'bv-linked-note-cell' } : {}, noteField),
         el('td', {}, el('button', { class: 'btn-ghost', onclick: () => {
           addDraft = { date: r.date, desc: r.desc, label: item.label, cat: r.cat,
             amount: Math.abs(r.amount), dir: r.amount < 0 ? 'out' : 'in',
             note: r.note, subcategory: subcategoryOf(r, item._file) };
           addTransaction();
-        } }, 'Копировать'), splitButton(item), deleteButton(item))));
+        } }, 'Копировать'), splitButton(item), deleteButton(item)));
+      body.append(mainRow);
+      function toggleReceipt(force) {
+        const open = force === undefined ? !panelRow : force;
+        if (open && !panelRow) {
+          const current = receiptForTransaction(receipts, r, code);
+          if (!current) return;
+          panelRow = el('tr', { class: 'bv-tx-receipt-row', role: 'row' },
+            el('td', { colspan: '8', class: 'bv-tx-receipt-cell', role: 'cell' }, receiptDetail(current, value => rowMoney(value, r))));
+          mainRow.after(panelRow); expandedReceipts.add(r);
+        } else if (!open && panelRow) { panelRow.remove(); panelRow = null; expandedReceipts.delete(r); }
+        disclosure.setAttribute('aria-expanded', String(open));
+        mainRow.classList.toggle('bv-tx-receipt-open', open);
+      }
+      if (receipt) {
+        mainRow.addEventListener('click', e => {
+          if (e.target?.closest?.('button,input,select,textarea,a,label,summary,details') || window.getSelection?.().toString()) return;
+          toggleReceipt();
+        });
+        if (expandedReceipts.has(r)) toggleReceipt(true);
+      }
     }
     if (!list.length) body.append(el('tr', {}, el('td', { colspan: '8', class: 'text-muted' }, i18n.t('tx.none'))));
     if (total > list.length) {

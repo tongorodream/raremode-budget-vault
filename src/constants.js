@@ -62,6 +62,7 @@ const DEFAULT_SETTINGS = {
   exportFolder: 'Exports',
   chartTrendRange: '1m',
   chartTrendDailyMode: 'day',
+  chartTrendCategory: '',
   chartTrendDefaultVersion: 1,
   chartDebtRange: '5y',
   /* The split comparison and spending trend have independent display ranges. */

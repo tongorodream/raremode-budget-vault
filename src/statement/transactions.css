@@ -1,4 +1,35 @@
 /* Statement lane: transactions-lane owns this file (Transactions page restyle). */
+/* Receipt disclosure is read-only and stays outside the editable ledger model. */
+.budget-app-root #view-transactions .bv-receipt-toggle { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 8px; width: 100%; height: auto; min-height: 0; padding: 0; border: 0; box-shadow: none; background: none; color: inherit; font: inherit; text-align: left; white-space: normal; line-height: inherit; }
+body.is-tablet .budget-app-root button:where(.bv-receipt-toggle) { padding: 0; }
+.budget-app-root #view-transactions .bv-receipt-toggle > small { grid-column: 2; color: var(--text-muted); font-size: 12px; font-weight: 400; }
+.budget-app-root #view-transactions .bv-receipt-chevron { color: var(--color-accent); }
+.budget-app-root #view-transactions .bv-tx-receipt-open .bv-receipt-chevron { transform: rotate(90deg); }
+.budget-app-root #view-transactions .bv-receipt-toggle:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 3px; }
+@supports not selector(:focus-visible) {
+  .budget-app-root #view-transactions .bv-receipt-toggle:focus { outline: 2px solid var(--color-accent); outline-offset: 3px; }
+}
+.budget-app-root #view-transactions .bv-receipt-note { font-size: 12px; color: var(--text-muted); }
+.budget-app-root #view-transactions .bv-receipt-note > summary { cursor: pointer; }
+.budget-app-root #view-transactions .bv-receipt-note input { margin-top: 8px; }
+.budget-app-root #view-transactions .bv-tx-has-receipt { cursor: pointer; }
+.budget-app-root #view-transactions .table tbody .bv-tx-receipt-row td.bv-tx-receipt-cell { white-space: normal; }
+.budget-app-root #view-transactions .bv-receipt-detail { border: 1px solid var(--border-color); border-radius: 14px; background: var(--body-bg); padding: 12px; }
+.budget-app-root #view-transactions .bv-receipt-items { display: grid; }
+.budget-app-root #view-transactions .bv-receipt-item { display: grid; grid-template-columns: 26px minmax(0, 1fr) auto; gap: 10px; align-items: start; padding: 10px 0; border-bottom: 1px solid var(--border-color); font-size: 13px; line-height: 1.5; }
+.budget-app-root #view-transactions .bv-receipt-item:last-child { border-bottom: 0; }
+.budget-app-root #view-transactions .bv-receipt-icon { font-size: 22px; line-height: 1.2; }
+.budget-app-root #view-transactions .bv-receipt-product { min-width: 0; white-space: normal; overflow-wrap: break-word; }
+.budget-app-root #view-transactions .bv-receipt-product small { display: block; font-size: 12px; color: var(--text-muted); font-weight: 400; }
+.budget-app-root #view-transactions .bv-receipt-item > strong { white-space: nowrap; font-size: 13px; font-weight: 600; }
+.budget-app-root #view-transactions .bv-receipt-total { display: flex; justify-content: space-between; gap: 12px; padding-top: 12px; margin-top: 8px; border-top: 1px solid var(--border-color); font-size: 14px; }
+.budget-app-root #view-transactions .bv-receipt-source { display: inline-block; margin-top: 10px; font-size: 12px; color: var(--color-accent); }
+@media (max-width: 600px) {
+  .budget-app-root #txTable[role='table'] > tbody > tr.bv-tx-receipt-row { display: block; padding: 0 0 16px; }
+  .budget-app-root #txTable[role='table'] > tbody > tr.bv-tx-receipt-row > td.bv-tx-receipt-cell { display: block; width: 100%; grid-area: auto; padding: 0; }
+  .budget-app-root #txTable[role='table'] > tbody > tr > td.bv-linked-note-cell::before { display: none; }
+  .budget-app-root #view-transactions .bv-receipt-toggle { min-height: 44px; }
+}
 /*
    "Option 3, statement type" for the Transactions page. The layout, the card
    and the colours are the ones the page already had; what changes is the type

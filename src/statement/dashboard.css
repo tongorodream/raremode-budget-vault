@@ -1,4 +1,20 @@
 /* Statement lane: dashboard-lane owns this file (Dashboard page restyle). */
+/* Small screens give category names their own line instead of squeezing them
+   between three monetary columns. Comparison figures remain on a second line. */
+@media (max-width: 600px) {
+  .budget-app-root .donut-legend--linked > li:not(.donut-legend-head) { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; }
+  .budget-app-root .donut-legend--linked .donut-legend-head { display: none; }
+  .budget-app-root .donut-legend--linked li .dl-link { display: grid; grid-template-columns: 10px minmax(0, 1fr) auto; gap: 4px 8px; width: 100%; padding: 12px 0; }
+  body.is-tablet .budget-app-root button:where(.dl-link) { padding: 12px 0; }
+  .budget-app-root .donut-legend--linked .dl-link > i { grid-column: 1; grid-row: 1; align-self: center; }
+  .budget-app-root .donut-legend--linked .dl-link > .dl-name { grid-column: 2; grid-row: 1; min-width: 0; width: auto; white-space: normal; overflow-wrap: break-word; }
+  .budget-app-root .donut-legend--linked .dl-link > .dl-val { grid-column: 3; grid-row: 1; white-space: nowrap; text-align: right; }
+  .budget-app-root .donut-legend--linked .dl-link > .dl-base { grid-column: 2; grid-row: 2; width: auto; text-align: left; font-size: 12px; }
+  .budget-app-root .donut-legend--linked .dl-link > .dl-base::before { content: attr(data-label) ' · '; }
+  .budget-app-root .donut-legend--linked .dl-link > .dl-delta { grid-column: 3; grid-row: 2; width: auto; font-size: 12px; text-align: right; }
+  .budget-app-root .donut-legend--linked .dl-link > .dl-delta::before { content: 'Δ '; }
+  .budget-app-root .donut-legend--linked .dl-link > .dl-pct { display: none; }
+}
 /* The Dashboard keeps its layout, card order and colours; this lane sets the type
    (mockup: _preview/option3-mockup.html, Dashboard). Later than foundation.css at
    equal specificity, so it wins by order. Selectors that would also reach the

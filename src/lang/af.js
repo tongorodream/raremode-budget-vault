@@ -13,6 +13,9 @@
        per AWS spelling rules, not hyphenated as in English. */
 
 module.exports = {
+  'tx.receipt.items': { one: '{count} strokie-item', other: '{count} strokie-items' },
+  'tx.receipt.paid': 'Betaal',
+  'tx.receipt.source': 'Strokie ↗',
   'dash.trend.modeLabel': 'Berekening van besteding',
   'dash.trend.modeDay': 'Per dag',
   'dash.trend.modeCumulative': 'Kumulatief',

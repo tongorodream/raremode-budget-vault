@@ -4,17 +4,20 @@ const i18n = require('./i18n');
 const { todayIso } = require('./dates');
 const { dailySpendingTrend } = require('./daily-trend');
 const { smoothSegments, smoothLinePath, smoothAreaPath } = require('./smooth-trend');
+const { categoryTrendScope } = require('./trend-scope');
 const { themeColors, createChart, scales, gridlines, axisLabels, phoneWidth,
   areaGradient, tip, trackPoints, rangePills } = require('./chart');
 
 module.exports = function renderDailyTrend(ctx) {
   const { S, $, root, money, periodRange, periodTitle, dayLabel } = ctx;
   const wrap = $('#trendChart'), range = periodRange(S.period), today = todayIso();
+  const category = ctx.plugin.settings.chartTrendCategory || '';
+  const scope = category ? categoryTrendScope(ctx, S.period, category, today) : null;
   const cumulativeMode = ctx.plugin.settings.chartTrendDailyMode === 'cumulative';
-  const all = dailySpendingTrend({ rows: ctx.ledger(range.start, range.end), ...range, today });
+  const all = dailySpendingTrend({ rows: scope ? scope.rows : ctx.ledger(range.start, range.end), ...range, today });
   const data = cumulativeMode ? all : all.filter(d => !d.opening);
   const observed = data.filter(d => d.observed);
-  const budget = ctx.budgetTotals(S.period).spend;
+  const budget = scope ? scope.budget : ctx.budgetTotals(S.period).spend;
   const reference = cumulativeMode ? budget : budget / (all.length - 1);
   const spentValue = d => cumulativeMode ? d.spent : d.dailySpent;
   const incomeValue = d => cumulativeMode ? d.income : d.dailyIncome;
@@ -37,7 +40,7 @@ module.exports = function renderDailyTrend(ctx) {
     if (budgetLegend) budgetLegend.textContent = i18n.t('dash.trend.dayBudget');
     if (overLegend) overLegend.textContent = i18n.t('dash.trend.dayOver');
   }
-  const period = periodTitle(S.period);
+  const period = periodTitle(S.period) + (category ? ` · ${category === '__none__' ? i18n.t('tx.uncategorised') : category}` : '');
   const label = d => d.opening ? i18n.t('dash.trend.dailyStart') : dayLabel(d.date);
   $('#trendSub').textContent = i18n.t(cumulativeMode ? 'dash.trend.dailySub' : 'dash.trend.daySub', { period });
   const W = 1000, H = 300, c = themeColors(root);
@@ -54,7 +57,7 @@ module.exports = function renderDailyTrend(ctx) {
   if (observed.length > 1) {
     const fill = areaGradient(add, 'dailySpentArea', c.success);
     add('path', { d: smoothAreaPath(spentPoints, s.y(0)), fill });
-    add('path', { d: smoothLinePath(observed.map((d, i) => [s.x(i), s.y(incomeValue(d))])), fill: 'none',
+    if (!category) add('path', { d: smoothLinePath(observed.map((d, i) => [s.x(i), s.y(incomeValue(d))])), fill: 'none',
       stroke: c.info, 'stroke-width': 2, 'stroke-opacity': 0.85 });
   }
   if (reference > 0) add('line', { x1: s.padL, x2: W - s.padR, y1: s.y(reference), y2: s.y(reference),
@@ -88,6 +91,7 @@ module.exports = function renderDailyTrend(ctx) {
   const primary = row(i18n.t(cumulativeMode ? 'shell.legend.spent' : 'dash.trend.dailyDay'), 'is-spent');
   const secondary = row(i18n.t(cumulativeMode ? 'dash.trend.dailyDay' : 'dash.trend.modeCumulative'), 'is-spent');
   const income = row(i18n.t('shell.legend.income'), 'is-income');
+  income.node.classList.toggle('hidden', !!category);
   const limit = row(i18n.t(cumulativeMode ? 'shell.legend.budget' : 'dash.trend.dayBudget'), 'is-budget');
   limit.node.classList.toggle('hidden', !(budget > 0));
   tooltip.append(head, primary.node, secondary.node, income.node, limit.node);
@@ -117,8 +121,7 @@ module.exports = function renderDailyTrend(ctx) {
     tip(add, hit, `${label(d)} · ${i18n.t('shell.legend.spent')} ${money(d.spent)} · ${i18n.t('dash.trend.dailyDay')} ${money(d.dailySpent)}`);
   });
   axisLabels(add, s, data.map(label), H, { maxLabels: 7 });
-  wrap.append(svg, tooltip, el('p', { class: 'text-muted fine-note', style: 'margin:10px 0 0;line-height:1.5' },
-    i18n.t(cumulativeMode ? 'dash.trend.dailyNote' : 'dash.trend.dayNote')));
-  const assumed = ctx.budgetUsed(S.period).assumed;
+  wrap.append(svg, tooltip);
+  const assumed = scope ? scope.assumed : ctx.budgetUsed(S.period).assumed;
   if (assumed > 0) wrap.append(el('p', { class: 'text-muted fine-note' }, i18n.t('dash.trend.dailyProvision', { amount: money(assumed) })));
 };

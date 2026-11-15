@@ -26,6 +26,9 @@
        held out as a first-class translation. */
 
 module.exports = {
+  'tx.receipt.items': { other: '{count} item struk' },
+  'tx.receipt.paid': 'Dibayar',
+  'tx.receipt.source': 'Struk ↗',
   'dash.trend.modeLabel': 'Perhitungan pengeluaran',
   'dash.trend.modeDay': 'Per hari',
   'dash.trend.modeCumulative': 'Kumulatif',

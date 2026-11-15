@@ -28,6 +28,9 @@
        leave the app and be read by someone who never sees the interface. */
 
 module.exports = {
+  'tx.receipt.items': { one: '{count} item do recibo', other: '{count} itens do recibo' },
+  'tx.receipt.paid': 'Pago',
+  'tx.receipt.source': 'Recibo ↗',
   'dash.trend.modeLabel': 'Cálculo dos gastos',
   'dash.trend.modeDay': 'Por dia',
   'dash.trend.modeCumulative': 'Acumulado',

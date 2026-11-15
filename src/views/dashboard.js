@@ -43,9 +43,10 @@ const { incomeRemainingText } = require('./budgets');
 /* `keeps`/`dropsAnyOf` are the lens row tests — ledger()/LENSES come off ctx (period.js
    provides them), but the predicate itself is a pure module export. */
 const { keeps, dropsAnyOf, isRefund } = require('../ledger');
-const { poolAccounts } = require('../vocabulary');
+const { poolAccounts, isSetAsideType } = require('../vocabulary');
 const { subcategorySpend } = require('../subcategories');
 const renderDailyTrend = require('../daily-trend-chart');
+const { categoryTrendScope } = require('../trend-scope');
 
 module.exports = function registerDashboard(ctx) {
   let expandedCategory = null;
@@ -2006,6 +2007,32 @@ module.exports = function registerDashboard(ctx) {
 
   function renderTrend() {
     const wrap = $('#trendChart'); wrap.empty();
+    const categorySelect = $('#trendCategory');
+    const names = new Set((S.categories || []).filter(c => c.name && catType(c.name) !== 'income'
+      && catType(c.name) !== 'transfer' && !isSetAsideType(catType(c.name))).map(c => c.name));
+    let hasUncategorised = false;
+    for (const file of Object.values(S.txFiles)) for (const row of file.rows || []) {
+      if (row.amount >= 0 || catType(row.cat) === 'income' || catType(row.cat) === 'transfer' || isSetAsideType(catType(row.cat))) continue;
+      if (row.cat) names.add(row.cat); else hasUncategorised = true;
+    }
+    const categoryOptions = [{ value: '', label: i18n.t('tx.allCategories') },
+      ...(hasUncategorised ? [{ value: '__none__', label: i18n.t('tx.uncategorised') }] : []),
+      ...[...names].sort((a,b) => a.localeCompare(b)).map(name => ({ value: name, label: name }))];
+    if (!categoryOptions.some(o => o.value === plugin.settings.chartTrendCategory)) plugin.settings.chartTrendCategory = '';
+    const trendCategory = plugin.settings.chartTrendCategory || '';
+    if (categorySelect) {
+      categorySelect.empty();
+      for (const option of categoryOptions) categorySelect.append(el('option', { value: option.value }, option.label));
+      categorySelect.value = trendCategory;
+      categorySelect.onchange = async () => {
+        const scroller = wrap.closest('.bud-scroll'), top = scroller?.scrollTop;
+        plugin.settings.chartTrendCategory = categorySelect.value;
+        try { await plugin.saveSettings(); }
+        catch (e) { toast(i18n.t('settings.err.save', { error: e.message || e }), true); }
+        guardedTrend(); categorySelect.focus({ preventScroll: true });
+        if (scroller) scroller.scrollTop = top;
+      };
+    }
 
     const ranges = trendRanges();
     const range = trendRange(ranges);
@@ -2034,11 +2061,13 @@ module.exports = function registerDashboard(ctx) {
     const periods = trendPeriods(want);
     const data = periods.map(p => {
       const sum = periodSummary(p);
+      const scope = trendCategory ? categoryTrendScope(ctx, p, trendCategory) : null;
       return {
         /* ADR-0007 · Trend spend is the one numerator: a gross figure against
            spend-only envelopes made every bar's over/under verdict a different
            question from the hero's above it. */
-        p, spent: budgetUsed(p).spent, income: sum.income, budget: budgetTotals(p).spend, label: periodShortLabel(p),
+        p, spent: scope ? scope.spent : budgetUsed(p).spent, income: scope ? 0 : sum.income,
+        budget: scope ? scope.budget : budgetTotals(p).spend, label: periodShortLabel(p),
         /* Whether the vault covers this period AT ALL — periodSpend's own
            count, uncapped, the same test compareTotals already relies on to
            keep a never-imported month out of its own baseline. A period that
@@ -2163,7 +2192,7 @@ module.exports = function registerDashboard(ctx) {
       incomeRun = [];
     };
     data.forEach((d, i) => {
-      if (d.covered) incomeRun.push([s.x(i), s.y(d.income)]);
+      if (d.covered && !trendCategory) incomeRun.push([s.x(i), s.y(d.income)]);
       else flushIncome();
     });
     flushIncome();
@@ -2273,7 +2302,7 @@ module.exports = function registerDashboard(ctx) {
       spentMark.setAttribute('stroke', key);
       spentMark.setAttribute('opacity', d.covered ? '1' : '0');
       incomeMark.setAttribute('cx', x); incomeMark.setAttribute('cy', s.y(d.income));
-      incomeMark.setAttribute('opacity', d.covered ? '1' : '0');
+      incomeMark.setAttribute('opacity', d.covered && !trendCategory ? '1' : '0');
       /* A period with no budget set has no budget point to mark — s.y(0) would
          park a dot on the baseline that reads as "budgeted nothing" rather than
          "nothing budgeted". */
@@ -2292,7 +2321,7 @@ module.exports = function registerDashboard(ctx) {
          reading. TODO(i18n): dash.trend.tip.noImport — "Not imported — no
          transactions land in this period." */
       rSpent.node.classList.toggle('hidden', !d.covered);
-      rIncome.node.classList.toggle('hidden', !d.covered);
+      rIncome.node.classList.toggle('hidden', !d.covered || !!trendCategory);
       rSpent.val.textContent = money(d.spent);
       rSpent.swatch.classList.toggle('is-over', bad);
       rIncome.val.textContent = money(d.income);
@@ -2380,7 +2409,7 @@ module.exports = function registerDashboard(ctx) {
          own flex wrap (.donut-wrap), which #trendChart is not. Same look,
          written locally rather than borrowing a rule tied to a layout this
          card does not have. */
-      wrap.append(el('p', { class: 'text-muted fine-note', style: 'margin:10px 0 0;line-height:1.5' },
+      wrap.append(el('p', { class: 'sr-only' },
         i18n.t('dash.trend.inProgress')));
     }
   }
@@ -2739,7 +2768,7 @@ module.exports = function registerDashboard(ctx) {
         el('span', { class: 'dl-val num' }, money(rowMoney[i], 0)),
         el('span', { class: 'dl-pct num' }, `${pct}%`),
         ...(base ? [
-          el('span', { class: 'dl-base num' }, cmp ? cmp.baseText : '—'),
+          el('span', { class: 'dl-base num', 'data-label': base.label }, cmp ? cmp.baseText : '—'),
           el('span', { class: `dl-delta num ${cmp ? cmp.cls : 'is-flat'}` }, cmp ? cmp.text : '—'),
         ] : []),
       ];

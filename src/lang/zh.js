@@ -17,6 +17,9 @@
        ISO date, unlike the localised JJJJ-MM-TT of German. */
 
 module.exports = {
+  'tx.receipt.items': { other: '{count} 项收据明细' },
+  'tx.receipt.paid': '实付',
+  'tx.receipt.source': '收据 ↗',
   'dash.trend.modeLabel': '支出计算方式',
   'dash.trend.modeDay': '按日',
   'dash.trend.modeCumulative': '累计',

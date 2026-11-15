@@ -27,6 +27,9 @@
        held out as a first-class translation. */
 
 module.exports = {
+  'tx.receipt.items': { one: 'रसीद की {count} वस्तु', other: 'रसीद की {count} वस्तुएँ' },
+  'tx.receipt.paid': 'भुगतान',
+  'tx.receipt.source': 'रसीद ↗',
   'dash.trend.modeLabel': 'खर्च की गणना',
   'dash.trend.modeDay': 'प्रति दिन',
   'dash.trend.modeCumulative': 'संचयी',

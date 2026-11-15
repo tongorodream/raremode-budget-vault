@@ -14,6 +14,9 @@
      - Date placeholders are localised: JJJJ-MM-TT, not YYYY-MM-DD. */
 
 module.exports = {
+  'tx.receipt.items': { one: '{count} Belegposition', other: '{count} Belegpositionen' },
+  'tx.receipt.paid': 'Bezahlt',
+  'tx.receipt.source': 'Beleg ↗',
   'dash.trend.modeLabel': 'Ausgabenberechnung',
   'dash.trend.modeDay': 'Pro Tag',
   'dash.trend.modeCumulative': 'Kumuliert',

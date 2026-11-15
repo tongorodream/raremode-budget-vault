@@ -102,6 +102,17 @@ function linkedReceipts(receipts, transactions, currency) {
   return { linked, issues };
 }
 
+/* Read-only transaction disclosure also works for excluded/non-food-category
+   rows; it never makes them eligible for grocery or budget totals. */
+function receiptForTransaction(byId, row, currency) {
+  if (!row || !finite(row.amount) || row.amount >= 0 || !currency) return null;
+  const candidates = [...String(row.note || '').matchAll(/\bID:\s*([^\s.]+)(?=\.|\s|$)/g)]
+    .map(m => byId.get(m[1])).filter(r => r && r.currency === currency);
+  if (candidates.length !== 1) return null;
+  const receipt = candidates[0];
+  return receipt.date === row.date && receipt.paid === Math.round(-row.amount * 100) ? receipt : null;
+}
+
 function sortedTotals(map) {
   return [...map].map(([name, amount]) => ({ name, amount })).sort((a, b) => b.amount - a.amount || a.name.localeCompare(b.name));
 }
@@ -242,4 +253,4 @@ function priceHistory(receipts, endMonth, count = 12) {
   }) })).sort((a, b) => b.purchases - a.purchases || a.name.localeCompare(b.name));
 }
 
-module.exports = { CATEGORY, GROUPS, BASIC_PRODUCTS, basicProduct, foodProfile, boughtQuantity, nutritionFor, parseGroceryFiles, linkedReceipts, groceryAnalytics, priceHistory };
+module.exports = { CATEGORY, GROUPS, BASIC_PRODUCTS, basicProduct, foodProfile, boughtQuantity, nutritionFor, parseGroceryFiles, linkedReceipts, receiptForTransaction, groceryAnalytics, priceHistory };

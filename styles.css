@@ -2580,6 +2580,10 @@ body.is-tablet .budget-app-root button:where(.sav-worth-btn) { padding: 8px 2px;
 .budget-app-root .card-h-controls {
   display: flex; align-items: center; gap: 18px; flex-wrap: wrap;
 }
+.budget-app-root #trendCategory { width: auto; min-width: 150px; max-width: 250px; }
+@media (max-width: 600px) {
+  .budget-app-root #trendCategory { width: 100%; max-width: none; }
+}
 
 .budget-app-root .chart-range { display: inline-flex; gap: 2px; padding: 3px; border-radius: 999px; background: var(--line-soft); }
 .budget-app-root .chart-range-btn {
@@ -5548,7 +5552,12 @@ body.is-tablet .budget-app-root button:where(.bv-subcategory-link) { padding: 10
 .budget-app-root .bv-subcategory-link:hover { background: var(--line-soft); }
 .budget-app-root .bv-subcategory-link .num { white-space: nowrap; }
 .budget-app-root .bv-all-category { margin-bottom: 6px; }
-.budget-app-root .bv-category-branch { align-items: start; }
+.budget-app-root .donut-legend li.bv-category-branch { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; }
+.budget-app-root .donut-legend .bv-category-branch > .dl-link { width: 100%; min-width: 0; }
+.budget-app-root .bv-category-branch > .bv-subcategory-breakdown { grid-column: 1 / -1; min-width: 0; max-width: 100%; box-sizing: border-box; }
+.budget-app-root .bv-subcategory-link > span:first-child { flex: 1; min-width: 0; white-space: normal; overflow-wrap: break-word; }
+.budget-app-root .bv-subcategory-link > .num { flex: none; }
+.budget-app-root .bv-all-category { width: 100%; white-space: normal; line-height: 1.4; }
 .budget-app-root .bv-category-branch .dl-link[aria-expanded="true"] .dl-name::after { content: " ▾"; opacity: .6; }
 @media (max-width: 700px) {
   .budget-app-root .bv-subcategory-select, .budget-app-root #txSubcategory { min-height: 44px; font-size: 16px; }
@@ -6074,6 +6083,22 @@ body.is-tablet .budget-app-root button:where(.bv-subcategory-link) { padding: 10
   text-align: right;
 }
 /* Statement lane: dashboard-lane owns this file (Dashboard page restyle). */
+/* Small screens give category names their own line instead of squeezing them
+   between three monetary columns. Comparison figures remain on a second line. */
+@media (max-width: 600px) {
+  .budget-app-root .donut-legend--linked > li:not(.donut-legend-head) { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; }
+  .budget-app-root .donut-legend--linked .donut-legend-head { display: none; }
+  .budget-app-root .donut-legend--linked li .dl-link { display: grid; grid-template-columns: 10px minmax(0, 1fr) auto; gap: 4px 8px; width: 100%; padding: 12px 0; }
+  body.is-tablet .budget-app-root button:where(.dl-link) { padding: 12px 0; }
+  .budget-app-root .donut-legend--linked .dl-link > i { grid-column: 1; grid-row: 1; align-self: center; }
+  .budget-app-root .donut-legend--linked .dl-link > .dl-name { grid-column: 2; grid-row: 1; min-width: 0; width: auto; white-space: normal; overflow-wrap: break-word; }
+  .budget-app-root .donut-legend--linked .dl-link > .dl-val { grid-column: 3; grid-row: 1; white-space: nowrap; text-align: right; }
+  .budget-app-root .donut-legend--linked .dl-link > .dl-base { grid-column: 2; grid-row: 2; width: auto; text-align: left; font-size: 12px; }
+  .budget-app-root .donut-legend--linked .dl-link > .dl-base::before { content: attr(data-label) ' · '; }
+  .budget-app-root .donut-legend--linked .dl-link > .dl-delta { grid-column: 3; grid-row: 2; width: auto; font-size: 12px; text-align: right; }
+  .budget-app-root .donut-legend--linked .dl-link > .dl-delta::before { content: 'Δ '; }
+  .budget-app-root .donut-legend--linked .dl-link > .dl-pct { display: none; }
+}
 /* The Dashboard keeps its layout, card order and colours; this lane sets the type
    (mockup: _preview/option3-mockup.html, Dashboard). Later than foundation.css at
    equal specificity, so it wins by order. Selectors that would also reach the
@@ -6752,6 +6777,37 @@ body.is-tablet .budget-app-root button:where(.bv-subcategory-link) { padding: 10
   .budget-app-root .bud-table .bud-act { width: 44px; height: 44px; }
 }
 /* Statement lane: transactions-lane owns this file (Transactions page restyle). */
+/* Receipt disclosure is read-only and stays outside the editable ledger model. */
+.budget-app-root #view-transactions .bv-receipt-toggle { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 8px; width: 100%; height: auto; min-height: 0; padding: 0; border: 0; box-shadow: none; background: none; color: inherit; font: inherit; text-align: left; white-space: normal; line-height: inherit; }
+body.is-tablet .budget-app-root button:where(.bv-receipt-toggle) { padding: 0; }
+.budget-app-root #view-transactions .bv-receipt-toggle > small { grid-column: 2; color: var(--text-muted); font-size: 12px; font-weight: 400; }
+.budget-app-root #view-transactions .bv-receipt-chevron { color: var(--color-accent); }
+.budget-app-root #view-transactions .bv-tx-receipt-open .bv-receipt-chevron { transform: rotate(90deg); }
+.budget-app-root #view-transactions .bv-receipt-toggle:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 3px; }
+@supports not selector(:focus-visible) {
+  .budget-app-root #view-transactions .bv-receipt-toggle:focus { outline: 2px solid var(--color-accent); outline-offset: 3px; }
+}
+.budget-app-root #view-transactions .bv-receipt-note { font-size: 12px; color: var(--text-muted); }
+.budget-app-root #view-transactions .bv-receipt-note > summary { cursor: pointer; }
+.budget-app-root #view-transactions .bv-receipt-note input { margin-top: 8px; }
+.budget-app-root #view-transactions .bv-tx-has-receipt { cursor: pointer; }
+.budget-app-root #view-transactions .table tbody .bv-tx-receipt-row td.bv-tx-receipt-cell { white-space: normal; }
+.budget-app-root #view-transactions .bv-receipt-detail { border: 1px solid var(--border-color); border-radius: 14px; background: var(--body-bg); padding: 12px; }
+.budget-app-root #view-transactions .bv-receipt-items { display: grid; }
+.budget-app-root #view-transactions .bv-receipt-item { display: grid; grid-template-columns: 26px minmax(0, 1fr) auto; gap: 10px; align-items: start; padding: 10px 0; border-bottom: 1px solid var(--border-color); font-size: 13px; line-height: 1.5; }
+.budget-app-root #view-transactions .bv-receipt-item:last-child { border-bottom: 0; }
+.budget-app-root #view-transactions .bv-receipt-icon { font-size: 22px; line-height: 1.2; }
+.budget-app-root #view-transactions .bv-receipt-product { min-width: 0; white-space: normal; overflow-wrap: break-word; }
+.budget-app-root #view-transactions .bv-receipt-product small { display: block; font-size: 12px; color: var(--text-muted); font-weight: 400; }
+.budget-app-root #view-transactions .bv-receipt-item > strong { white-space: nowrap; font-size: 13px; font-weight: 600; }
+.budget-app-root #view-transactions .bv-receipt-total { display: flex; justify-content: space-between; gap: 12px; padding-top: 12px; margin-top: 8px; border-top: 1px solid var(--border-color); font-size: 14px; }
+.budget-app-root #view-transactions .bv-receipt-source { display: inline-block; margin-top: 10px; font-size: 12px; color: var(--color-accent); }
+@media (max-width: 600px) {
+  .budget-app-root #txTable[role='table'] > tbody > tr.bv-tx-receipt-row { display: block; padding: 0 0 16px; }
+  .budget-app-root #txTable[role='table'] > tbody > tr.bv-tx-receipt-row > td.bv-tx-receipt-cell { display: block; width: 100%; grid-area: auto; padding: 0; }
+  .budget-app-root #txTable[role='table'] > tbody > tr > td.bv-linked-note-cell::before { display: none; }
+  .budget-app-root #view-transactions .bv-receipt-toggle { min-height: 44px; }
+}
 /*
    "Option 3, statement type" for the Transactions page. The layout, the card
    and the colours are the ones the page already had; what changes is the type
@@ -8045,6 +8101,10 @@ body.is-tablet .budget-app-root button:where(.gr-staple-chip) { padding: 10px 8p
   body.is-phone .budget-app-root .tx-whole {
     min-height: 44px;
   }
+  body.is-phone .budget-app-root #txTable[role='table'] > tbody > tr.bv-tx-receipt-row { display: block; padding: 0 0 16px; }
+  body.is-phone .budget-app-root #txTable[role='table'] > tbody > tr.bv-tx-receipt-row > td.bv-tx-receipt-cell { display: block; width: 100%; grid-area: auto; padding: 0; }
+  body.is-phone .budget-app-root #txTable[role='table'] > tbody > tr > td.bv-linked-note-cell::before { display: none; }
+  body.is-phone .budget-app-root #view-transactions .bv-receipt-toggle { min-height: 44px; }
   body.is-phone .budget-app-root input[type='checkbox'] {
     width: 44px;
     height: 44px;

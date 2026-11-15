@@ -22,6 +22,9 @@
    reader should look first. Do not treat this table as final for a release. */
 
 module.exports = {
+  'tx.receipt.items': { one: 'Into yerisithi e-{count}', other: 'Izinto zerisithi ezi-{count}' },
+  'tx.receipt.paid': 'Ihlawulwe',
+  'tx.receipt.source': 'Irisithi ↗',
   'dash.trend.modeLabel': 'Indlela yokubala inkcitho',
   'dash.trend.modeDay': 'Ngemini',
   'dash.trend.modeCumulative': 'Eqokelelweyo',

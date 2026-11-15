@@ -826,6 +826,10 @@
   body.is-phone .budget-app-root .tx-whole {
     min-height: 44px;
   }
+  body.is-phone .budget-app-root #txTable[role='table'] > tbody > tr.bv-tx-receipt-row { display: block; padding: 0 0 16px; }
+  body.is-phone .budget-app-root #txTable[role='table'] > tbody > tr.bv-tx-receipt-row > td.bv-tx-receipt-cell { display: block; width: 100%; grid-area: auto; padding: 0; }
+  body.is-phone .budget-app-root #txTable[role='table'] > tbody > tr > td.bv-linked-note-cell::before { display: none; }
+  body.is-phone .budget-app-root #view-transactions .bv-receipt-toggle { min-height: 44px; }
   body.is-phone .budget-app-root input[type='checkbox'] {
     width: 44px;
     height: 44px;

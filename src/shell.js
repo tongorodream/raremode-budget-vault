@@ -199,15 +199,16 @@ const SHELL_HTML = `
           <div class="card-h">
             <div>
               <h2 data-i18n="shell.dash.trend">Spending Trend</h2>
-              <div class="sub" id="trendSub" data-i18n="shell.dash.trendSub">Spent vs spending budget</div>
+              <div class="sub sr-only" id="trendSub" data-i18n="shell.dash.trendSub">Spent vs spending budget</div>
             </div>
             <div class="card-h-controls">
-              <div class="legend">
+              <div class="legend hidden">
                 <span><i style="background:var(--color-success)"></i><span data-i18n="shell.legend.spent">Spent</span></span>
                 <span><i style="background:var(--color-danger)"></i><span id="trendOverLegend" data-i18n="shell.legend.over">Over budget</span></span>
                 <span><i style="background:var(--color-info)"></i><span data-i18n="shell.legend.income">Income</span></span>
                 <span><i class="legend-dash"></i><span id="trendBudgetLegend" data-i18n="shell.legend.budget">Budget</span></span>
               </div>
+              <select id="trendCategory" class="form-select form-select-sm" data-i18n-aria="tx.col.category" aria-label="Category"></select>
               <div id="trendMode" class="hidden"></div>
               <div id="trendRange"></div>
             </div>

@@ -17,6 +17,9 @@
        ISO date, unlike the localised JJJJ-MM-TT of German. */
 
 module.exports = {
+  'tx.receipt.items': { other: 'レシート明細 {count} 件' },
+  'tx.receipt.paid': '支払額',
+  'tx.receipt.source': 'レシート ↗',
   'dash.trend.modeLabel': '支出の計算方法',
   'dash.trend.modeDay': '日別',
   'dash.trend.modeCumulative': '累計',

@@ -1,5 +1,12 @@
 # Changelog
 
+## Kelly Finance 0.3.5 — 2026-11-16
+
+- Transactions with a matching receipt now expand inline into a read-only item list with icons, quantities, unit prices, line totals and the source receipt. Verbose notes remain editable under a compact disclosure.
+- Spending trend has a saved category selector for both daily/cumulative and multi-period views. Category spending uses its own budget/provision scope; overall income is not shown as if it belonged to one expense category.
+- The chart header is compact: permanent colour legends and explanatory paragraphs no longer consume the phone screen; interactive values and accessible chart descriptions remain.
+- Expanded category breakdowns occupy their own full-width grid row, avoiding mobile collisions with the category, amount and comparison columns.
+
 ## Kelly Finance 0.3.4 — 2026-11-15
 
 - Grocery price cards now show compact price/unit labels immediately below their icons: per kg, litre or piece as appropriate, with separate lines for mixed weight/volume groups.

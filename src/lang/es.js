@@ -15,6 +15,9 @@
      - Angular quotes «» are the Spanish convention, not "". */
 
 module.exports = {
+  'tx.receipt.items': { one: '{count} artículo del recibo', other: '{count} artículos del recibo' },
+  'tx.receipt.paid': 'Pagado',
+  'tx.receipt.source': 'Recibo ↗',
   'dash.trend.modeLabel': 'Cálculo del gasto',
   'dash.trend.modeDay': 'Por día',
   'dash.trend.modeCumulative': 'Acumulado',

@@ -17,6 +17,9 @@
    becoming "undefined". */
 
 module.exports = {
+  'tx.receipt.items': { one: '{count} receipt item', other: '{count} receipt items' },
+  'tx.receipt.paid': 'Paid',
+  'tx.receipt.source': 'Receipt ↗',
   'dash.trend.modeLabel': 'Spending calculation',
   'dash.trend.modeDay': 'Per day',
   'dash.trend.modeCumulative': 'Cumulative',
