@@ -5,10 +5,12 @@ const { createChart, arcPath, tip, themeColors, SLICE_PALETTE } = require('../ch
 const { keeps } = require('../ledger');
 const { sharePercents } = require('../share-percents');
 const { CATEGORY, GROUPS, BASIC_PRODUCTS, boughtQuantity, parseGroceryFiles, groceryAnalytics, priceHistory } = require('../groceries');
+const { priceCards } = require('../grocery-price-filters');
 
 module.exports = function registerGroceries(ctx) {
   const { S, $, app, vault, root, money } = ctx;
   let selectedProduct = '', priceScale = 1000, storeMode = 'merchant', groupFilter = '';
+  let priceMonths = 1, priceOrder = 'asc', priceMeasure = 'all';
   const number = (n, digits = 1) => new Intl.NumberFormat('ru-RU', { maximumFractionDigits: digits }).format(n);
   const cash = cents => money(cents / 100, 2);
   const monthLabel = m => new Date(`${m}-15T12:00:00`).toLocaleDateString('ru-RU', { month: 'short', year: '2-digit' });
@@ -136,7 +138,7 @@ module.exports = function registerGroceries(ctx) {
   }
 
   function renderPrices(host, history, endMonth) {
-    const section = card('Как менялась цена', 'chart-no-axes-combined', 'Последние 12 календарных месяцев. Средняя цена базовых продуктов: марки и фасовки объединены, части мяса разделены.');
+    const section = card('Как менялась цена', 'chart-no-axes-combined', 'Марки и фасовки объединены в базовые продукты. История на графике — 12 месяцев.');
     section.classList.add('gr-prices');
     const products = priceHistory(history, endMonth);
     if (!products.length) { section.append(small('Нужны чеки с количеством и фасовкой. Покупки без состава не дают цену за грамм.')); host.append(section); return; }
@@ -145,34 +147,82 @@ module.exports = function registerGroceries(ctx) {
       if (!groups.has(product.groupKey)) groups.set(product.groupKey, { key: product.groupKey, name: product.name, icon: product.icon, series: [] });
       groups.get(product.groupKey).series.push(product);
     }
-    if (!products.some(p => p.key === selectedProduct)) selectedProduct = [...groups.values()].find(g => g.series.length).series[0].key;
     const picker = el('div', { class: 'gr-staple-picker', role: 'group', 'aria-label': 'Базовый продукт для сравнения цен' });
     const body = el('div', { class: 'gr-price-body' });
     const buttons = new Map();
+    let visibleCards = new Map();
+    const symbol = String(S.settings.currency || '₽');
+    const badgePrice = entry => entry.summary ? `${number(entry.summary.price, 2)} ${symbol}/${entry.label}` : '—';
+    const filter = (label, options, value, change) => {
+      const select = el('select', { class: 'form-select', 'aria-label': label, onchange: e => change(e.target.value) },
+        options.map(([key, name]) => el('option', { value: key }, name)));
+      select.value = String(value);
+      return el('label', { class: 'gr-price-filter' }, el('span', {}, label), select);
+    };
+    const filters = el('div', { class: 'gr-price-filters', role: 'group', 'aria-label': 'Фильтры цен на карточках' },
+      filter('Период цен', [[1, 'Последний месяц'], [3, 'Последние 3 месяца'], [6, 'Последние 6 месяцев'], [12, 'Последние 12 месяцев']], priceMonths,
+        value => { priceMonths = Number(value); refreshCards(); }),
+      filter('Сравнивать', [['all', 'Все единицы'], ['g', 'По весу (кг)'], ['ml', 'По объёму (л)'], ['pcs', 'За штуку']], priceMeasure,
+        value => { priceMeasure = value; refreshCards(); }),
+      filter('Сортировка', [['asc', 'Цена ↑'], ['desc', 'Цена ↓'], ['name', 'По названию'], ['none', 'Без сортировки']], priceOrder,
+        value => { priceOrder = value; refreshCards(true); }));
+    const filterNote = small('');
     // Only the details change. The page, picker and focused chip stay mounted.
     function updatePrices(focus) {
       const scroller = section.closest('.bud-scroll');
       const top = scroller?.scrollTop, left = scroller?.scrollLeft;
       const product = products.find(p => p.key === selectedProduct);
-      for (const [key, chip] of buttons) chip.setAttribute('aria-pressed', String(key === product.groupKey));
+      for (const [key, chip] of buttons) chip.setAttribute('aria-pressed', String(key === product?.groupKey));
       body.replaceChildren();
-      drawPriceSeries(body, product, groups.get(product.groupKey).series, updatePrices);
+      if (product && visibleCards.has(product.groupKey)) drawPriceSeries(body, product, visibleCards.get(product.groupKey).series, updatePrices);
+      else body.append(small('Для выбранной меры пока нет покупок с количеством.'));
       if (focus) body.querySelector(`[aria-label="${focus}"]`)?.focus({ preventScroll: true });
       if (scroller) { scroller.scrollTop = top; scroller.scrollLeft = left; }
     }
     for (const group of groups.values()) {
       const chip = el('button', { type: 'button', class: 'gr-staple-chip',
-        disabled: group.series.length ? null : '', 'aria-label': group.name, 'aria-pressed': 'false',
-        title: group.series.length ? group.name : `${group.name}: пока нет покупок с количеством`,
+        'aria-label': group.name, 'aria-pressed': 'false',
         onclick: () => {
+          const card = visibleCards.get(group.key);
+          if (!card?.series.length) return;
           const current = products.find(p => p.key === selectedProduct);
-          selectedProduct = (group.series.find(p => p.unit === current?.unit) || group.series[0]).key;
+          selectedProduct = (card.series.find(p => p.unit === current?.unit) || card.series.find(p => p.key === card.primary?.key) || card.series[0]).key;
           updatePrices();
-        } }, el('span', { class: 'gr-staple-icon', 'aria-hidden': 'true' }, group.icon), el('span', {}, group.name));
-      buttons.set(group.key, chip); picker.append(chip);
+        } }, el('span', { class: 'gr-staple-icon', 'aria-hidden': 'true' }, group.icon),
+        el('span', { class: 'gr-staple-price num' }, '—'), el('span', { class: 'gr-staple-name' }, group.name));
+      buttons.set(group.key, chip);
     }
-    section.append(picker, small('Выбери продукт. Лента с иконками прокручивается по горизонтали; серые группы пока без покупок.'), body);
-    updatePrices(); host.append(section);
+    function refreshCards(resetStrip = false) {
+      const scroller = section.closest('.bud-scroll'), top = scroller?.scrollTop, stripLeft = picker.scrollLeft;
+      const result = priceCards([...groups.values()], endMonth, { months: priceMonths, measure: priceMeasure, sort: priceOrder });
+      visibleCards = new Map(result.cards.map(card => [card.key, card]));
+      const allowed = result.cards.flatMap(card => card.series);
+      if (!allowed.some(p => p.key === selectedProduct)) {
+        selectedProduct = result.cards.find(card => card.primary)?.primary.key || allowed[0]?.key || '';
+      }
+      for (const card of result.cards) {
+        const chip = buttons.get(card.key), price = chip.querySelector('.gr-staple-price');
+        if (card.series.length) chip.removeAttribute('disabled'); else chip.setAttribute('disabled', '');
+        price.replaceChildren(...(card.summaries.length ? card.summaries.map(entry => el('span', {}, badgePrice(entry))) : ['—']));
+        chip.title = `${card.name}: ${card.primary ? card.summaries.map(badgePrice).join('; ') : 'нет покупок в выбранном периоде'}`;
+        chip.setAttribute('aria-description', chip.title);
+        if (card.primary) {
+          chip.setAttribute('data-price', card.primary.summary.price); chip.setAttribute('data-price-unit', card.primary.unit);
+        } else { chip.removeAttribute('data-price'); chip.removeAttribute('data-price-unit'); }
+      }
+      picker.replaceChildren(...result.cards.map(card => buttons.get(card.key)));
+      picker.classList.toggle('gr-staple-picker--short', result.cards.length <= 2);
+      const windowName = result.window.start === result.window.end ? monthLabel(result.window.end) : `${monthLabel(result.window.start)} — ${monthLabel(result.window.end)}`;
+      filterNote.textContent = `Цены карточек: ${windowName}. Средняя с учётом количества. `
+        + (priceMeasure === 'all' && ['asc', 'desc'].includes(priceOrder) ? 'Сортировка отдельно: кг → л → шт. ' : '')
+        + (['asc', 'desc'].includes(priceOrder) ? 'Без цены — в конце.' : 'Прочерк — нет цены за период.');
+      updatePrices();
+      picker.scrollLeft = resetStrip ? 0 : stripLeft;
+      if (scroller) scroller.scrollTop = top;
+    }
+    section.append(filters, filterNote, picker,
+      small('Выбери продукт; лента прокручивается вбок. «—» — нет цены за период.'), body);
+    refreshCards(); host.append(section);
   }
 
   function drawPriceSeries(section, product, series, updatePrices) {

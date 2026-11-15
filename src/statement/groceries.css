@@ -41,8 +41,14 @@ body.is-tablet .budget-app-root button:where(.gr-legend-button) { padding: 11px 
 .budget-app-root .gr-price-controls { display: flex; gap: 12px; align-items: center; }
 .budget-app-root .gr-price-controls select:first-child { flex: 1; min-width: 0; }
 .budget-app-root .gr-price-controls select:last-child { width: auto; max-width: 190px; }
-.budget-app-root .gr-staple-picker { display: grid; grid-auto-flow: column; grid-template-rows: repeat(2, 88px); grid-auto-columns: 116px; gap: 8px; overflow-x: auto; min-width: 0; padding-bottom: 10px; }
-.budget-app-root .gr-staple-chip { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; height: 88px; padding: 10px 8px; white-space: normal; line-height: 1.35; font-size: 12px; color: var(--text-primary); background: var(--body-bg); border: 1px solid var(--border-color); border-radius: 14px; box-shadow: none; }
+.budget-app-root .gr-price-filters { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 18px 0 12px; }
+.budget-app-root .gr-price-filter { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.budget-app-root .gr-price-filter > span { font-size: 12px; color: var(--text-muted); }
+.budget-app-root .gr-price-filter > select { width: 100%; min-width: 0; }
+.budget-app-root .gr-staple-picker { display: grid; grid-auto-flow: column; grid-template-rows: repeat(2, 124px); grid-auto-columns: 116px; gap: 8px; overflow-x: auto; min-width: 0; padding-bottom: 10px; }
+.budget-app-root .gr-staple-picker--short { grid-template-rows: 124px; }
+.budget-app-root .gr-staple-picker:empty { display: none; }
+.budget-app-root .gr-staple-chip { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; height: 124px; padding: 10px 8px; white-space: normal; line-height: 1.35; font-size: 12px; color: var(--text-primary); background: var(--body-bg); border: 1px solid var(--border-color); border-radius: 14px; box-shadow: none; }
 body.is-tablet .budget-app-root button:where(.gr-staple-chip) { padding: 10px 8px; }
 .budget-app-root .gr-staple-chip[aria-pressed="true"] { border-color: var(--color-accent); color: var(--color-accent); }
 .budget-app-root .gr-staple-chip:disabled { opacity: .45; cursor: default; }
@@ -50,7 +56,10 @@ body.is-tablet .budget-app-root button:where(.gr-staple-chip) { padding: 10px 8p
 @supports not selector(:focus-visible) {
   .budget-app-root .gr-staple-chip:focus { outline: 2px solid var(--color-accent); outline-offset: -3px; }
 }
-.budget-app-root .gr-staple-icon { font-size: 26px; }
+.budget-app-root .gr-staple-icon { font-size: 26px; line-height: 1; }
+.budget-app-root .gr-staple-price { display: flex; flex-direction: column; justify-content: center; min-height: 32px; font-size: 12px; font-weight: 500; line-height: 1.3; color: var(--text-muted); }
+.budget-app-root .gr-staple-price > span { white-space: nowrap; }
+.budget-app-root .gr-staple-name { display: flex; align-items: center; justify-content: center; min-height: 30px; }
 .budget-app-root .gr-price-body { min-width: 0; }
 .budget-app-root .gr-price-name { margin: 12px 0; font-size: 18px; }
 .budget-app-root .gr-price-variants { font-size: 13px; color: var(--text-muted); line-height: 1.65; margin: 12px 0; }
@@ -86,6 +95,8 @@ body.is-tablet .budget-app-root button:where(.gr-staple-chip) { padding: 10px 8p
   .budget-app-root .gr-donut { width: 190px; }
 }
 @media (max-width: 600px) {
+  .budget-app-root .gr-price-filters { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .budget-app-root .gr-price-filter:first-child { grid-column: 1 / -1; }
   .budget-app-root #groceryContent { gap: 16px; }
   .budget-app-root .gr-header { align-items: flex-start; flex-direction: column; gap: 4px; }
   .budget-app-root .gr-card { padding: 18px; border-radius: 20px; }

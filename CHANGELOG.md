@@ -1,5 +1,12 @@
 # Changelog
 
+## Kelly Finance 0.3.4 — 2026-11-15
+
+- Grocery price cards now show compact price/unit labels immediately below their icons: per kg, litre or piece as appropriate, with separate lines for mixed weight/volume groups.
+- Added card-price windows of 1/3/6/12 months, measure filters, ascending/descending price order, alphabetical order and the original list order. Defaults are the selected calendar month and ascending prices.
+- Prices are quantity-weighted over the selected window. Units are ranked separately, missing prices stay last in price sorts and no stale historical price is presented as current. The detailed chart retains its twelve-month history.
+- Filter changes preserve page position and update the existing panel without recreating the surrounding finance page.
+
 ## Kelly Finance 0.3.3 — 2026-11-15
 
 - The one-month spending chart defaults to **Per day**, so spending falls on quieter days and rises on more expensive days. **Cumulative** remains available in a saved mode switch.

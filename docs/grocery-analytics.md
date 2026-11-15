@@ -24,6 +24,10 @@ Nutrition coverage is the share of food spending with a complete, quantity-scala
 
 ## Price history
 
+Since 0.3.4, a compact toolbar filters **card prices** over 1/3/6/12 calendar months ending at the month selected in the page header. The default is the selected month and ascending price order. Each icon card displays quantity-weighted price per kg, litre or piece; groups with both weight and volume can show both without converting density. The detailed monthly chart underneath intentionally keeps twelve months of history, and the interface labels this distinction.
+
+The measure filter can restrict the list to weight, volume or pieces. In the all-measures list, price order is first grouped by kg, then litres, then pieces; numerically comparing one egg with a kilogram is not meaningful. Missing-window prices sort last in either price direction, while genuine zero prices remain valid. Name and original-order options are also available. Changing filters preserves vertical scroll; selecting a new sort brings the reordered icon strip to its start.
+
 Price is sum of paid line amounts divided by total purchased quantity for that calendar month, after discounts. Since 0.3.1, icon buttons choose staple groups such as eggs, bananas, tomatoes, pork ham, pork neck, chicken breast, kefir, cream and butter. Brands and packs in a group are deliberately combined. An expandable list shows the product names included. Unknown recipes retain their own identity instead of being classified from a filling/flavour. `price_group` can explicitly name a group (`price_key` remains accepted); optional `price_icon` customises its icon.
 
 Groups without quantity-backed purchases are disabled rather than assigned a made-up price. Changing a group or unit updates only the price panel; the surrounding page, icon picker and scroll position remain in place. A group containing both weight and volume presents a separate measure selector.

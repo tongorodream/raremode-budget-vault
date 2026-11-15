@@ -1,7 +1,7 @@
 {
   "id": "raremode-finance",
   "name": "Kelly Finance",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "minAppVersion": "1.8.0",
   "description": "Budget Vault fork with subcategories and receipt-backed grocery, nutrition, store and unit-price analytics. Desktop and mobile.",
   "author": "tongorodream; based on Budget Vault by Ruan Pienaar",
